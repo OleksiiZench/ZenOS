@@ -4,6 +4,7 @@
 #include "esp_log.h"
 #include "esp_chip_info.h"
 #include "driver/gpio.h"
+#include "driver/ledc.h"
 
 static const char *TAG = "ZEN_OS";
 
@@ -68,6 +69,15 @@ void update_buttons()
    
 }
 
+void setup_buzzer()
+{
+    ledc_timer_config_t ledc_timer_config_buzzer = { LEDC_LOW_SPEED_MODE, LEDC_TIMER_8_BIT, LEDC_TIMER_0, 1000, LEDC_USE_RC_FAST_CLK, false };
+    ledc_timer_config(&ledc_timer_config_buzzer);
+
+    ledc_channel_config_t ledc_channel_config_buzzer = { GPIO_NUM_11, LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, LEDC_INTR_DISABLE, LEDC_TIMER_0, 2, 0, LEDC_SLEEP_MODE_KEEP_ALIVE, 1 };
+    ledc_channel_config(&ledc_channel_config_buzzer);
+}
+
 extern "C" void app_main(void)
 {
     vTaskDelay(pdMS_TO_TICKS(2500));
@@ -83,6 +93,7 @@ extern "C" void app_main(void)
     ESP_LOGI(TAG, "Silicon revision: %d", chip_info.revision);
 
     setup_buttons();
+    setup_buzzer();
 
     while (1)
     {// Головний цикл
