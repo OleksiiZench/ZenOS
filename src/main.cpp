@@ -13,19 +13,33 @@ struct Button
     gpio_num_t pin;
     const char *name;
     int last_state;
+    
+    void (*on_press)();
 };
 
+void make_sound_buzzer()
+{
+    ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, 127);
+    ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
+}
+
+void mute_buzzer()
+{
+    ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, 0);
+    ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
+}
+
 Button buttons[] = {
-    {GPIO_NUM_38, "UP",     1},
-    {GPIO_NUM_41, "DOWN",   1},
-    {GPIO_NUM_39, "LEFT",   1},
-    {GPIO_NUM_40, "RIGHT",  1},
-    {GPIO_NUM_5,  "A",      1},
-    {GPIO_NUM_6,  "B",      1},
-    {GPIO_NUM_10, "C",      1},
-    {GPIO_NUM_9,  "D",      1},
-    {GPIO_NUM_0,  "SELECT", 1},
-    {GPIO_NUM_4,  "START",  1}
+    {GPIO_NUM_38, "UP",     1, nullptr},
+    {GPIO_NUM_41, "DOWN",   1, nullptr},
+    {GPIO_NUM_39, "LEFT",   1, nullptr},
+    {GPIO_NUM_40, "RIGHT",  1, nullptr},
+    {GPIO_NUM_5,  "A",      1, make_sound_buzzer},
+    {GPIO_NUM_6,  "B",      1, mute_buzzer},
+    {GPIO_NUM_10, "C",      1, nullptr},
+    {GPIO_NUM_9,  "D",      1, nullptr},
+    {GPIO_NUM_0,  "SELECT", 1, nullptr},
+    {GPIO_NUM_4,  "START",  1, nullptr}
 };
 
 const int NUM_BUTTONS = sizeof(buttons) / sizeof(Button);
@@ -58,6 +72,11 @@ void update_buttons()
         if (current_state == 0 && buttons[i].last_state == 1)
         {
             ESP_LOGI(TAG, ">>> BUTTON [%s] PRESSED! <<<", buttons[i].name);
+
+            if (buttons[i].on_press != nullptr)
+            {
+                buttons[i].on_press();
+            }
         }
         else if (current_state == 1 && buttons[i].last_state == 0)
         {
@@ -71,11 +90,31 @@ void update_buttons()
 
 void setup_buzzer()
 {
-    ledc_timer_config_t ledc_timer_config_buzzer = { LEDC_LOW_SPEED_MODE, LEDC_TIMER_8_BIT, LEDC_TIMER_0, 1000, LEDC_USE_RC_FAST_CLK, false };
-    ledc_timer_config(&ledc_timer_config_buzzer);
+    // Примусово робимо пін виходом і подаємо 0V (GND)
+    // Це має "заспокоїти" пін перед тим, як LEDC візьме його під контроль
+    gpio_reset_pin(GPIO_NUM_11);
+    gpio_set_direction(GPIO_NUM_11, GPIO_MODE_OUTPUT);
+    gpio_set_level(GPIO_NUM_11, 0);
 
-    ledc_channel_config_t ledc_channel_config_buzzer = { GPIO_NUM_11, LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, LEDC_INTR_DISABLE, LEDC_TIMER_0, 2, 0, LEDC_SLEEP_MODE_KEEP_ALIVE, 1 };
-    ledc_channel_config(&ledc_channel_config_buzzer);
+    ledc_timer_config_t ledc_timer = {};
+    ledc_timer.speed_mode       = LEDC_LOW_SPEED_MODE;
+    ledc_timer.duty_resolution  = LEDC_TIMER_8_BIT;
+    ledc_timer.timer_num        = LEDC_TIMER_0;
+    ledc_timer.freq_hz          = 1000;
+    ledc_timer.clk_cfg          = LEDC_AUTO_CLK;
+    
+    ledc_timer_config(&ledc_timer);
+
+    ledc_channel_config_t ledc_channel = {};
+    ledc_channel.gpio_num       = GPIO_NUM_11;
+    ledc_channel.speed_mode     = LEDC_LOW_SPEED_MODE;
+    ledc_channel.channel        = LEDC_CHANNEL_0;
+    ledc_channel.timer_sel      = LEDC_TIMER_0;
+    ledc_channel.intr_type      = LEDC_INTR_DISABLE;
+    ledc_channel.duty           = 0;
+    ledc_channel.hpoint         = 0;
+    
+    ledc_channel_config(&ledc_channel);
 }
 
 extern "C" void app_main(void)
