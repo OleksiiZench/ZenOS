@@ -4,10 +4,10 @@
 
 Buzzer::Buzzer()
 {
-    setup_buzzer();
+    setupBuzzer();
 }
 
-void Buzzer::make_sound()
+void Buzzer::makeSound()
 {
     ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, 127);
     ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
@@ -19,7 +19,7 @@ void Buzzer::mute()
     ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
 }
 
-void Buzzer::setup_buzzer()
+void Buzzer::setupBuzzer()
 {
     // Примусово робимо пін виходом і подаємо 0V (GND)
     // Це має "заспокоїти" пін перед тим, як LEDC візьме його під контроль

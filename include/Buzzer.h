@@ -7,9 +7,9 @@ class Buzzer
 public:
     Buzzer();
 
-    void make_sound();
+    void makeSound();
     void mute();
 
 private:
-    void setup_buzzer();
+    void setupBuzzer();
 };
