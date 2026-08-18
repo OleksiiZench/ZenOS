@@ -39,7 +39,7 @@ extern "C" void app_main(void)
     bindButtonsInInputManager();
 
     while (1)
-    {// Головний цикл
+    {// Main loop
         if (inputManager)
         {
             inputManager->updateButtons();

@@ -21,8 +21,6 @@ void Buzzer::mute()
 
 void Buzzer::setupBuzzer()
 {
-    // Примусово робимо пін виходом і подаємо 0V (GND)
-    // Це має "заспокоїти" пін перед тим, як LEDC візьме його під контроль
     gpio_reset_pin(GPIO_NUM_11);
     gpio_set_direction(GPIO_NUM_11, GPIO_MODE_OUTPUT);
     gpio_set_level(GPIO_NUM_11, 0);

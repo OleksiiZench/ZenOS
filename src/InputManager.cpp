@@ -22,7 +22,7 @@ void InputManager::updateButtons()
 {
     for (int i = 0; i < BTN_MAX; i++)
     {
-        int current_state = gpio_get_level(_buttons[i].pin);  // gpio_get_level повертає 1, якщо на піні 3.3V, і 0, якшо пін замкнутий на змелю
+        int current_state = gpio_get_level(_buttons[i].pin);  // gpio_get_level returns 1 if the pin is at 3.3V, and 0 if the pin is shorted to ground
 
         if (current_state == 0 && _buttons[i].last_state == 1)
         {
