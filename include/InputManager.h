@@ -1,6 +1,5 @@
 #pragma once
 
-#include "EnumTypes.h"
 #include "Button.h"
 
 class InputManager
@@ -12,8 +11,10 @@ public:
     void updateButtons();
 
 private:
-    Button _buttons[BTN_MAX];
+  static constexpr int BUTTON_COUNT = static_cast<int>(ButtonID::Max);
 
-    void initializeArrayButtons();
-    void setupButtons();
+  Button _buttons[BUTTON_COUNT];
+
+  void initializeArrayButtons();
+  void setupButtons();
 };

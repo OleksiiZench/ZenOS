@@ -12,15 +12,15 @@ InputManager::InputManager()
 
 void InputManager::bindButton(ButtonID id, void (*action)())
 {
-    if (id >= 0 && id < BTN_MAX)
+    if (id >= ButtonID::Up && id < ButtonID::Max)
     {
-        _buttons[id].on_press = action;
+        _buttons[static_cast<int>(id)].on_press = action;
     }
 }
 
 void InputManager::updateButtons()
 {
-    for (int i = 0; i < BTN_MAX; i++)
+    for (int i = 0; i < BUTTON_COUNT; i++)
     {
         int current_state = gpio_get_level(_buttons[i].pin);  // gpio_get_level returns 1 if the pin is at 3.3V, and 0 if the pin is shorted to ground
 
@@ -44,23 +44,23 @@ void InputManager::updateButtons()
 
 void InputManager::initializeArrayButtons()
 {
-    _buttons[BTN_UP]     = { BTN_UP,       GPIO_NUM_38, "UP",     1, nullptr };
-    _buttons[BTN_DOWN]   = { BTN_DOWN,     GPIO_NUM_41, "DOWN",   1, nullptr };
-    _buttons[BTN_LEFT]   = { BTN_LEFT,     GPIO_NUM_39, "LEFT",   1, nullptr };
-    _buttons[BTN_RIGHT]  = { BTN_RIGHT,    GPIO_NUM_40, "RIGHT",  1, nullptr };
-    _buttons[BTN_A]      = { BTN_A,        GPIO_NUM_5,  "A",      1, nullptr };
-    _buttons[BTN_B]      = { BTN_B,        GPIO_NUM_6,  "B",      1, nullptr };
-    _buttons[BTN_C]      = { BTN_C,        GPIO_NUM_10, "C",      1, nullptr };
-    _buttons[BTN_D]      = { BTN_D,        GPIO_NUM_9,  "D",      1, nullptr };
-    _buttons[BTN_SELECT] = { BTN_SELECT,   GPIO_NUM_0,  "SELECT", 1, nullptr };
-    _buttons[BTN_START]  = { BTN_START,    GPIO_NUM_4,  "START",  1, nullptr };
+    _buttons[static_cast<int>(ButtonID::Up)]     = { ButtonID::Up,       GPIO_NUM_38, "UP",     1, nullptr };
+    _buttons[static_cast<int>(ButtonID::Down)]   = { ButtonID::Down,     GPIO_NUM_41, "DOWN",   1, nullptr };
+    _buttons[static_cast<int>(ButtonID::Left)]   = { ButtonID::Left,     GPIO_NUM_39, "LEFT",   1, nullptr };
+    _buttons[static_cast<int>(ButtonID::Right)]  = { ButtonID::Right,    GPIO_NUM_40, "RIGHT",  1, nullptr };
+    _buttons[static_cast<int>(ButtonID::A)]      = { ButtonID::A,        GPIO_NUM_5,  "A",      1, nullptr };
+    _buttons[static_cast<int>(ButtonID::B)]      = { ButtonID::B,        GPIO_NUM_6,  "B",      1, nullptr };
+    _buttons[static_cast<int>(ButtonID::C)]      = { ButtonID::C,        GPIO_NUM_10, "C",      1, nullptr };
+    _buttons[static_cast<int>(ButtonID::D)]      = { ButtonID::D,        GPIO_NUM_9,  "D",      1, nullptr };
+    _buttons[static_cast<int>(ButtonID::Select)] = { ButtonID::Select,   GPIO_NUM_0,  "SELECT", 1, nullptr };
+    _buttons[static_cast<int>(ButtonID::Start)]  = { ButtonID::Start,    GPIO_NUM_4,  "START",  1, nullptr };
 }
 
 void InputManager::setupButtons()
 {
-    ESP_LOGI("TEMP!!! Log wrapper needed", "Initializing %d buttons...", BTN_MAX);
+    ESP_LOGI("TEMP!!! Log wrapper needed", "Initializing %d buttons...", BUTTON_COUNT);
 
-    for (int i = 0; i < BTN_MAX; i++)
+    for (int i = 0; i < BUTTON_COUNT; i++)
     {
         gpio_config_t io_conf = {};
         io_conf.pin_bit_mask = (1ULL << _buttons[i].pin);

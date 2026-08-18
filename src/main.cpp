@@ -7,7 +7,6 @@
 
 #include "Buzzer.h"
 #include "InputManager.h"
-#include "EnumTypes.h"
 
 void bindButtonsInInputManager();
 void inputButtonA();
@@ -53,8 +52,8 @@ void bindButtonsInInputManager()
 {
     if (inputManager)
     {
-        inputManager->bindButton(BTN_A, inputButtonA);
-        inputManager->bindButton(BTN_B, inputButtonB);
+        inputManager->bindButton(ButtonID::A, inputButtonA);
+        inputManager->bindButton(ButtonID::B, inputButtonB);
     }
 }
 

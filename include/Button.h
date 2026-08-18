@@ -2,11 +2,30 @@
 
 #include "driver/gpio.h"
 
-#include "EnumTypes.h"
+enum class ButtonID
+{
+    None = -1,
+
+    Up = 0,
+    Down,
+    Left,
+    Right,
+    A,
+    B,
+    C,
+    D,
+    Select,
+    Start,
+
+    Max
+};
+
+
+
 
 struct Button
 {
-    ButtonID id = BTN_NONE;
+    ButtonID id = ButtonID::None;
     gpio_num_t pin = GPIO_NUM_NC;
     const char *name = "UNKNOWN";
     int last_state = 1;
