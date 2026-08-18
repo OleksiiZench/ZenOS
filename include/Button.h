@@ -6,10 +6,10 @@
 
 struct Button
 {
-    ButtonID id;
-    gpio_num_t pin;
-    const char *name;
-    int last_state;
+    ButtonID id = BTN_NONE;
+    gpio_num_t pin = GPIO_NUM_NC;
+    const char *name = "UNKNOWN";
+    int last_state = 1;
     
-    void (*on_press)();
+    void (*on_press)() = nullptr;
 };
