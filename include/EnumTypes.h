@@ -2,7 +2,9 @@
 
 enum ButtonID
 {
-    BTN_UP,
+    BTN_NONE = -1,
+
+    BTN_UP = 0,
     BTN_DOWN,
     BTN_LEFT,
     BTN_RIGHT,
