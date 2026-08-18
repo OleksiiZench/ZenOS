@@ -41,3 +41,9 @@ config.json
 # ----------------------------------------------------------------------
 .DS_Store
 Thumbs.db
+
+# ESP-IDF
+sdkconfig
+sdkconfig.*
+!sdkconfig.defaults
+!sdkconfig.defaults.*
