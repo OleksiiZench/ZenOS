@@ -11,10 +11,10 @@ public:
     void updateButtons();
 
 private:
-  static constexpr int BUTTON_COUNT = static_cast<int>(ButtonID::Max);
+    static constexpr int BUTTON_COUNT = static_cast<int>(ButtonID::Max);
 
-  Button _buttons[BUTTON_COUNT];
+    Button _buttons[BUTTON_COUNT];
 
-  void initializeArrayButtons();
-  void setupButtons();
+    void initializeArrayButtons();
+    void setupButtons();
 };

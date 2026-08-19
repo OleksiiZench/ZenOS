@@ -37,7 +37,7 @@ extern "C" void app_main(void)
     buzzer = new Buzzer();
 
     inputManager = new InputManager();
-    
+
     bindButtonsInInputManager();
 
     while (1)

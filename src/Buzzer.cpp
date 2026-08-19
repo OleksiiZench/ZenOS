@@ -31,7 +31,7 @@ void Buzzer::setupBuzzer()
     ledc_timer.timer_num        = LEDC_TIMER_0;
     ledc_timer.freq_hz          = 1000;
     ledc_timer.clk_cfg          = LEDC_AUTO_CLK;
-    
+
     ledc_timer_config(&ledc_timer);
 
     ledc_channel_config_t ledc_channel = {};
@@ -42,6 +42,6 @@ void Buzzer::setupBuzzer()
     ledc_channel.intr_type      = LEDC_INTR_DISABLE;
     ledc_channel.duty           = 0;
     ledc_channel.hpoint         = 0;
-    
+
     ledc_channel_config(&ledc_channel);
 }
