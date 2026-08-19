@@ -7,6 +7,8 @@
 
 #include "Buzzer.h"
 #include "InputManager.h"
+#include "BoardConfig.h"
+#include "drivers/DisplayDriver.h"
 
 void startBootTimer();
 void bindButtonsInInputManager();
@@ -17,6 +19,7 @@ static const char *TAG = "ZEN_OS";
 
 Buzzer *buzzer = nullptr;
 InputManager *inputManager = nullptr;
+DisplayDriver *display = nullptr;
 
 extern "C" void app_main(void)
 {
@@ -37,6 +40,9 @@ extern "C" void app_main(void)
     buzzer = new Buzzer();
 
     inputManager = new InputManager();
+
+    display = new DisplayDriver(BoardConfig::DISPLAY_CONFIG);
+    display->fillScreen(0x07E0);
 
     bindButtonsInInputManager();
 

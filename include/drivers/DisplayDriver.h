@@ -1,24 +1,27 @@
 #pragma once
 
-#include "driver/gpio.h"
 #include "driver/spi_master.h"
+
+#include "drivers/DisplayConfig.h"
 
 class DisplayDriver
 {
 public:
-    DisplayDriver();
+    DisplayDriver(const DisplayConfig& config);
 
-    void turnOnBacklight();
-    void fillGreen();
+    void fillScreen(uint16_t color);
 
 private:
-    static constexpr gpio_num_t PIN_BACKLIGHT = GPIO_NUM_46;
-    static constexpr gpio_num_t PIN_MOSI      = GPIO_NUM_17;
-    static constexpr gpio_num_t PIN_CLK       = GPIO_NUM_18;
-    static constexpr gpio_num_t PIN_CS        = GPIO_NUM_7;
-    static constexpr gpio_num_t PIN_DC        = GPIO_NUM_15;
-    static constexpr gpio_num_t PIN_RST       = GPIO_NUM_NC;
+    DisplayConfig _config;
+    spi_device_handle_t _spi = nullptr;
+    const uint16_t ROWS_PER_CHUNK = 20;
 
     void initSPI();
     void initController();
+    void turnOnBacklight();
+
+    void setAddrWindow(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
+
+    void sendCmd(uint8_t cmd);
+    void sendData(const uint8_t* data, size_t len);
 };
