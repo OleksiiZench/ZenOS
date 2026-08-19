@@ -73,4 +73,5 @@ void InputManager::setupButtons()
     }
 
     ESP_LOGI("TEMP!!! Log wrapper needed", "Gamepad initialized successfully!");
+    printf("\n");
 }
