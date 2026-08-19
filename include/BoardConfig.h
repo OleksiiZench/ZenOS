@@ -10,6 +10,8 @@ namespace BoardConfig
         .pin_clk       = GPIO_NUM_18,
         .pin_cs        = GPIO_NUM_7,
         .pin_dc        = GPIO_NUM_15,
-        .pin_rst       = GPIO_NUM_NC
+        .pin_rst       = GPIO_NUM_NC,
+        .width         = 240,
+        .height        = 280
     };
 }

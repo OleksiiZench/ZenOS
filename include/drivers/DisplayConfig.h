@@ -10,4 +10,7 @@ struct DisplayConfig
     gpio_num_t pin_cs;
     gpio_num_t pin_dc;
     gpio_num_t pin_rst;
+
+    uint16_t width;
+    uint16_t height;
 };
