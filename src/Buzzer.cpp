@@ -2,7 +2,7 @@
 
 #include "driver/ledc.h"
 
-Buzzer::Buzzer()
+void Buzzer::init()
 {
     setupBuzzer();
 }

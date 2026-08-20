@@ -2,12 +2,15 @@
 
 #include "driver/spi_master.h"
 
+#include "core/IModule.h"
 #include "drivers/DisplayConfig.h"
 
-class DisplayDriver
+class DisplayDriver : public IModule
 {
 public:
     DisplayDriver(const DisplayConfig& config);
+
+    virtual void init() override;
 
     void fillScreen(uint16_t color);
 

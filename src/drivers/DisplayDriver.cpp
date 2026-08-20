@@ -7,7 +7,10 @@
 DisplayDriver::DisplayDriver(const DisplayConfig& config)
 {
     _config = config;
+}
 
+void DisplayDriver::init()
+{
     initSPI();
     initController();
     turnOnBacklight();

@@ -4,10 +4,15 @@
 
 #include "Button.h"
 
-InputManager::InputManager()
+void InputManager::init()
 {
     initializeArrayButtons();
     setupButtons();
+}
+
+void InputManager::update()
+{
+    updateButtons();
 }
 
 void InputManager::bindButton(ButtonID id, void (*action)())
@@ -15,30 +20,6 @@ void InputManager::bindButton(ButtonID id, void (*action)())
     if (id >= ButtonID::Up && id < ButtonID::Max)
     {
         _buttons[static_cast<int>(id)].on_press = action;
-    }
-}
-
-void InputManager::updateButtons()
-{
-    for (int i = 0; i < BUTTON_COUNT; i++)
-    {
-        int current_state = gpio_get_level(_buttons[i].pin); // gpio_get_level returns 1 if the pin is at 3.3V, and 0 if the pin is shorted to ground
-
-        if (current_state == 0 && _buttons[i].last_state == 1)
-        {
-            ESP_LOGI("TEMP!!! Log wrapper needed", ">>> BUTTON [%s] PRESSED! <<<", _buttons[i].name);
-
-            if (_buttons[i].on_press != nullptr)
-            {
-                _buttons[i].on_press();
-            }
-        }
-        else if (current_state == 1 && _buttons[i].last_state == 0)
-        {
-            ESP_LOGI("TEMP!!! Log wrapper needed", ">>> BUTTON [%s] RELEASED! <<<", _buttons[i].name);
-        }
-
-        _buttons[i].last_state = current_state;
     }
 }
 
@@ -74,4 +55,28 @@ void InputManager::setupButtons()
 
     ESP_LOGI("TEMP!!! Log wrapper needed", "Gamepad initialized successfully!");
     printf("\n");
+}
+
+void InputManager::updateButtons()
+{
+    for (int i = 0; i < BUTTON_COUNT; i++)
+    {
+        int current_state = gpio_get_level(_buttons[i].pin); // gpio_get_level returns 1 if the pin is at 3.3V, and 0 if the pin is shorted to ground
+
+        if (current_state == 0 && _buttons[i].last_state == 1)
+        {
+            ESP_LOGI("TEMP!!! Log wrapper needed", ">>> BUTTON [%s] PRESSED! <<<", _buttons[i].name);
+
+            if (_buttons[i].on_press != nullptr)
+            {
+                _buttons[i].on_press();
+            }
+        }
+        else if (current_state == 1 && _buttons[i].last_state == 0)
+        {
+            ESP_LOGI("TEMP!!! Log wrapper needed", ">>> BUTTON [%s] RELEASED! <<<", _buttons[i].name);
+        }
+
+        _buttons[i].last_state = current_state;
+    }
 }

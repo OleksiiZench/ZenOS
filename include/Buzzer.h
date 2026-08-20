@@ -2,10 +2,12 @@
 
 #include "driver/gpio.h"
 
-class Buzzer
+#include "core/IModule.h"
+
+class Buzzer : public IModule
 {
 public:
-    Buzzer();
+    virtual void init() override;
 
     void makeSound();
     void mute();

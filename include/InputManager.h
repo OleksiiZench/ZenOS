@@ -1,15 +1,15 @@
 #pragma once
 
+#include "core/IModule.h"
 #include "Button.h"
 
-class InputManager
+class InputManager : public IModule
 {
 public:
-    InputManager();
+    virtual void init() override;
+    virtual void update() override;
 
     void bindButton(ButtonID id, void (*action)());
-    void updateButtons();
-
 private:
     static constexpr int BUTTON_COUNT = static_cast<int>(ButtonID::Max);
 
@@ -17,4 +17,6 @@ private:
 
     void initializeArrayButtons();
     void setupButtons();
+
+    void updateButtons();
 };
