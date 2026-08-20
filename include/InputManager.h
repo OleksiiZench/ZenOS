@@ -1,5 +1,7 @@
 #pragma once
 
+#include <functional>
+
 #include "core/IModule.h"
 #include "Button.h"
 
@@ -9,7 +11,7 @@ public:
     virtual void init() override;
     virtual void update() override;
 
-    void bindButton(ButtonID id, void (*action)());
+    void bindButton(ButtonID id, std::function<void()> action);
 private:
     static constexpr int BUTTON_COUNT = static_cast<int>(ButtonID::Max);
 

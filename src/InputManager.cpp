@@ -15,7 +15,7 @@ void InputManager::update()
     updateButtons();
 }
 
-void InputManager::bindButton(ButtonID id, void (*action)())
+void InputManager::bindButton(ButtonID id, std::function<void()> action)
 {
     if (id >= ButtonID::Up && id < ButtonID::Max)
     {
