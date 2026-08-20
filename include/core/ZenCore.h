@@ -1,22 +1,24 @@
 #pragma once
 
-class Buzzer;
-class InputManager;
-class DisplayDriver;
+#include <vector>
+
+class IModule;
 
 class ZenCore
 {
 public:
     ~ZenCore();
 
+    void registerModule(IModule* module);
+
     void init();
     void update();
 
 private:
-    Buzzer* _buzzer = nullptr;
-    InputManager* _inputManager = nullptr;
-    DisplayDriver* _display = nullptr;
+    std::vector<IModule*> _modules;
+
+    void initAllModules();
+    void updateAllModules();
 
     void startBootTimer();
-    void bindButtonsInInputManager();
 };

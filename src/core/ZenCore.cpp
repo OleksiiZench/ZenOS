@@ -5,18 +5,21 @@
 #include "esp_log.h"
 #include "esp_chip_info.h"
 
-#include "Buzzer.h"
-#include "InputManager.h"
-#include "drivers/DisplayDriver.h"
-#include "BoardConfig.h"
+#include "core/IModule.h"
 
 static const char *TAG = "ZEN_OS";
 
 ZenCore::~ZenCore()
 {
-    delete _buzzer;
-    delete _inputManager;
-    delete _display;
+    for (IModule* module : _modules)
+    {
+        delete module;
+    }
+}
+
+void ZenCore::registerModule(IModule* module)
+{
+    _modules.push_back(module);
 }
 
 void ZenCore::init()
@@ -35,24 +38,27 @@ void ZenCore::init()
     ESP_LOGI(TAG, "Silicon revision: %d", chip_info.revision);
     printf("\n");
 
-    _buzzer = new Buzzer();
-    _buzzer->init();
-
-    _inputManager = new InputManager();
-    _inputManager->init();
-
-    _display = new DisplayDriver(BoardConfig::DISPLAY_CONFIG);
-    _display->init();
-    _display->fillScreen(0x07E0);
-
-    bindButtonsInInputManager();
+    initAllModules();
 }
 
 void ZenCore::update()
 {
-    if (_inputManager)
+    updateAllModules();
+}
+
+void ZenCore::initAllModules()
+{
+    for (IModule* module : _modules)
     {
-        _inputManager->update();
+        module->init();
+    }
+}
+
+void ZenCore::updateAllModules()
+{
+    for (IModule* module : _modules)
+    {
+        module->update();
     }
 }
 
@@ -66,18 +72,4 @@ void ZenCore::startBootTimer()
     }
 
     printf("\n");
-}
-
-void ZenCore::bindButtonsInInputManager()
-{
-    if (_inputManager)
-    {
-        _inputManager->bindButton(ButtonID::A, [this]() {
-            if (this->_buzzer) this->_buzzer->makeSound();
-        });
-
-        _inputManager->bindButton(ButtonID::B, [this]() {
-            if (this->_buzzer) this->_buzzer->mute();
-        });
-    }
 }

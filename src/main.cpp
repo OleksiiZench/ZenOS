@@ -4,6 +4,7 @@
 #include "freertos/task.h"
 
 #include "core/ZenCore.h"
+#include "core/SystemBuilder.h"
 
 void setup();
 void loop();
@@ -25,6 +26,8 @@ extern "C" void app_main(void)
 
 void setup()
 {
+    SystemBuilder::buildLilka(_zenCore);
+
     _zenCore.init();
 }
 
