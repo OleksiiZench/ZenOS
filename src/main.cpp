@@ -10,6 +10,8 @@
 #include "BoardConfig.h"
 #include "drivers/DisplayDriver.h"
 
+void setup();
+void loop();
 void startBootTimer();
 void bindButtonsInInputManager();
 void inputButtonA();
@@ -22,6 +24,19 @@ InputManager *inputManager = nullptr;
 DisplayDriver *display = nullptr;
 
 extern "C" void app_main(void)
+{
+    setup();
+
+    while (1)
+    {
+        loop();
+    }
+}
+
+
+
+
+void setup()
 {
     startBootTimer();
 
@@ -45,16 +60,16 @@ extern "C" void app_main(void)
     display->fillScreen(0x07E0);
 
     bindButtonsInInputManager();
+}
 
-    while (1)
-    {// Main loop
-        if (inputManager)
-        {
-            inputManager->updateButtons();
-        }
-
-        vTaskDelay(pdMS_TO_TICKS(50));
+void loop()
+{
+    if (inputManager)
+    {
+        inputManager->updateButtons();
     }
+
+    vTaskDelay(pdMS_TO_TICKS(50));
 }
 
 
