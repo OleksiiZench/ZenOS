@@ -9,3 +9,4 @@ AllowShortFunctionsOnASingleLine: None
 AccessModifierOffset: -4
 ColumnLimit: 0
 Cpp11BracedListStyle: false
+PointerAlignment: Left
