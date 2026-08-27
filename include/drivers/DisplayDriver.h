@@ -1,9 +1,12 @@
 #pragma once
 
 #include "driver/spi_master.h"
+#include "esp_log.h"
 
 #include "core/IModule.h"
 #include "drivers/DisplayConfig.h"
+
+static const char* TAG = "DisplayDriver";
 
 class DisplayDriver : public IModule
 {
@@ -12,7 +15,7 @@ public:
 
     virtual void init() override;
 
-    void fillScreen(uint16_t color);
+    bool fillScreen(uint16_t color);
 
 private:
     DisplayConfig _config;

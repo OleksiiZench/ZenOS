@@ -15,10 +15,14 @@ void DisplayDriver::init()
     initController();
     turnOnBacklight();
 
-    fillScreen(_config.default_bg_color);
+    bool is_filled = fillScreen(_config.default_bg_color);
+    if (!is_filled)
+    {
+        ESP_LOGE(TAG, "init: initial screen clear failed");
+    }
 }
 
-void DisplayDriver::fillScreen(uint16_t color)
+bool DisplayDriver::fillScreen(uint16_t color)
 {
     setAddrWindow(0, 0, _config.width - 1, _config.height - 1);
 
@@ -26,6 +30,12 @@ void DisplayDriver::fillScreen(uint16_t color)
     const size_t chunk_pixels = _config.width * ROWS_PER_CHUNK;
     const size_t chunk_bytes = chunk_pixels * 2;
     uint8_t *buffer = (uint8_t *)heap_caps_malloc(chunk_bytes, MALLOC_CAP_DMA);
+
+    if (buffer == nullptr)
+    {
+        ESP_LOGE(TAG, "fillscreen: filed to allocate %d bytes of DMA memory", (int)chunk_bytes);
+        return false;
+    }
 
     // Filling the buffer with colour
     uint8_t color_hi = color >> 8;
@@ -46,6 +56,8 @@ void DisplayDriver::fillScreen(uint16_t color)
     }
 
     free(buffer);
+
+    return true;
 }
 
 void DisplayDriver::initSPI()
