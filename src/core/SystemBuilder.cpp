@@ -24,7 +24,6 @@ void SystemBuilder::buildLilka(ZenCore& zenCore)
     zenCore.registerModule(inputManager);
 
     DisplayDriver* display = new DisplayDriver(BoardConfig::DISPLAY_CONFIG);
-    display->fillScreen(0x07E0);
 
     zenCore.registerModule(display);
 }

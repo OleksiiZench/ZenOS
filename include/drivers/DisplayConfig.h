@@ -13,4 +13,5 @@ struct DisplayConfig
 
     uint16_t width;
     uint16_t height;
+    uint16_t default_bg_color = 0x0000;
 };

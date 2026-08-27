@@ -14,6 +14,8 @@ void DisplayDriver::init()
     initSPI();
     initController();
     turnOnBacklight();
+
+    fillScreen(_config.default_bg_color);
 }
 
 void DisplayDriver::fillScreen(uint16_t color)
