@@ -32,7 +32,7 @@ void Buzzer::setupBuzzer()
     ledc_timer.freq_hz          = 1000;
     ledc_timer.clk_cfg          = LEDC_AUTO_CLK;
 
-    ledc_timer_config(&ledc_timer);
+    ESP_ERROR_CHECK(ledc_timer_config(&ledc_timer));
 
     ledc_channel_config_t ledc_channel = {};
     ledc_channel.gpio_num       = GPIO_NUM_11;
@@ -43,5 +43,5 @@ void Buzzer::setupBuzzer()
     ledc_channel.duty           = 0;
     ledc_channel.hpoint         = 0;
 
-    ledc_channel_config(&ledc_channel);
+    ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel));
 }

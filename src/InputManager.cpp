@@ -54,7 +54,7 @@ void InputManager::setupButtons()
         io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
         io_conf.intr_type = GPIO_INTR_DISABLE;
 
-        gpio_config(&io_conf);
+        ESP_ERROR_CHECK(gpio_config(&io_conf));
     }
 
     ESP_LOGI("TEMP!!! Log wrapper needed", "Gamepad initialized successfully!");

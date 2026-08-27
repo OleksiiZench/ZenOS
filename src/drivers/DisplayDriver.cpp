@@ -75,7 +75,7 @@ void DisplayDriver::initSPI()
     buscfg.quadhd_io_num = GPIO_NUM_NC;
     buscfg.max_transfer_sz = _config.width * ROWS_PER_CHUNK * 2 + 8; // Size of chunk
 
-    spi_bus_initialize(SPI2_HOST, &buscfg, SPI_DMA_CH_AUTO);
+    ESP_ERROR_CHECK(spi_bus_initialize(SPI2_HOST, &buscfg, SPI_DMA_CH_AUTO));
 
     // Connecting the device to the bus
     spi_device_interface_config_t devcfg = {};
@@ -84,7 +84,7 @@ void DisplayDriver::initSPI()
     devcfg.spics_io_num = _config.pin_cs;
     devcfg.queue_size = 7;
 
-    spi_bus_add_device(SPI2_HOST, &devcfg, &_spi);
+    ESP_ERROR_CHECK(spi_bus_add_device(SPI2_HOST, &devcfg, &_spi));
 }
 
 void DisplayDriver::initController()
