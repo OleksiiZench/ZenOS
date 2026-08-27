@@ -4,9 +4,13 @@
 
 #include "Button.h"
 
-void InputManager::init()
+InputManager::InputManager()
 {
     initializeArrayButtons();
+}
+
+void InputManager::init()
+{
     setupButtons();
 }
 

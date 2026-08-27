@@ -8,6 +8,8 @@
 class InputManager : public IModule
 {
 public:
+    InputManager();
+
     virtual void init() override;
     virtual void update() override;
 
