@@ -19,4 +19,6 @@ private:
 
     void initAllModules();
     void updateAllModules();
+
+    void logSystemInfo();
 };

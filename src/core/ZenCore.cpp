@@ -24,12 +24,7 @@ void ZenCore::registerModule(IModule* module)
 
 void ZenCore::init()
 {
-    esp_chip_info_t chip_info;
-    esp_chip_info(&chip_info);
-
-    ESP_LOGI(TAG, "Chip model: ESP32-S3, Cores: %d", chip_info.cores);
-    ESP_LOGI(TAG, "Silicon revision: %d", chip_info.revision);
-    printf("\n");
+    logSystemInfo();
 
     initAllModules();
 }
@@ -53,4 +48,14 @@ void ZenCore::updateAllModules()
     {
         module->update();
     }
+}
+
+void ZenCore::logSystemInfo()
+{
+    esp_chip_info_t chip_info;
+    esp_chip_info(&chip_info);
+
+    ESP_LOGI(TAG, "Chip model: ESP32-S3, Cores: %d", chip_info.cores);
+    ESP_LOGI(TAG, "Silicon revision: %d", chip_info.revision);
+    printf("\n");
 }
