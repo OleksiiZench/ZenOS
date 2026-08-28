@@ -1,9 +1,9 @@
 #include "core/SystemBuilder.h"
 
-#include "Buzzer.h"
-#include "InputManager.h"
+#include "drivers/Buzzer.h"
+#include "modules/InputManager.h"
 #include "drivers/DisplayDriver.h"
-#include "BoardConfig.h"
+#include "boards/BoardConfig.h"
 
 void SystemBuilder::buildLilka(ZenCore& zenCore)
 {

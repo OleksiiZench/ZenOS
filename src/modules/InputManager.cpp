@@ -1,8 +1,8 @@
-#include "InputManager.h"
+#include "modules/InputManager.h"
 
 #include "esp_log.h"
 
-#include "Button.h"
+#include "drivers/Button.h"
 
 InputManager::InputManager()
 {

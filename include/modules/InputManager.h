@@ -3,7 +3,7 @@
 #include <functional>
 
 #include "core/IModule.h"
-#include "Button.h"
+#include "drivers/Button.h"
 
 class InputManager : public IModule
 {
