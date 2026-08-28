@@ -4,9 +4,13 @@
 #include "modules/InputManager.h"
 #include "drivers/DisplayDriver.h"
 #include "boards/BoardConfig.h"
+#include "modules/BootSplash.h"
 
 void SystemBuilder::buildLilka(ZenCore& zenCore)
 {
+    BootSplash* bootSplash = new BootSplash(5);
+    zenCore.registerModule(bootSplash);
+
     Buzzer* buzzer = new Buzzer;
     zenCore.registerModule(buzzer);
 

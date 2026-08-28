@@ -24,13 +24,6 @@ void ZenCore::registerModule(IModule* module)
 
 void ZenCore::init()
 {
-    startBootTimer();
-
-    ESP_LOGI(TAG, "============================");
-    ESP_LOGI(TAG, "    LILKA ZEN OS BOOTING    ");
-    ESP_LOGI(TAG, "============================");
-    printf("\n");
-
     esp_chip_info_t chip_info;
     esp_chip_info(&chip_info);
 
@@ -60,16 +53,4 @@ void ZenCore::updateAllModules()
     {
         module->update();
     }
-}
-
-void ZenCore::startBootTimer()
-{
-    for (int i = 5; i > 0; i--)
-    {
-        ESP_LOGI(TAG, "Starting in %d sec...", i);
-
-        vTaskDelay(pdMS_TO_TICKS(1000));
-    }
-
-    printf("\n");
 }
