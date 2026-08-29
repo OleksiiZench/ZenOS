@@ -6,8 +6,6 @@
 #include "core/IModule.h"
 #include "drivers/DisplayConfig.h"
 
-static const char* TAG = "DisplayDriver";
-
 class DisplayDriver : public IModule
 {
 public:

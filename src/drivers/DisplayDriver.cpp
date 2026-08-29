@@ -4,6 +4,8 @@
 #include <freertos/FreeRTOS.h>
 #include "freertos/task.h"
 
+static const char* TAG = "DisplayDriver";
+
 DisplayDriver::DisplayDriver(const DisplayConfig& config)
 {
     _config = config;
