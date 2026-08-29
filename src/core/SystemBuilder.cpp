@@ -1,5 +1,7 @@
 #include "core/SystemBuilder.h"
 
+#include <memory>
+
 #include "drivers/Buzzer.h"
 #include "modules/InputManager.h"
 #include "drivers/DisplayDriver.h"
@@ -8,26 +10,27 @@
 
 void SystemBuilder::buildLilka(ZenCore& zenCore)
 {
-    BootSplash* bootSplash = new BootSplash(5);
-    zenCore.registerModule(bootSplash);
+    auto bootSplash = std::make_unique<BootSplash>(5);
+    zenCore.registerModule(std::move(bootSplash));
 
-    Buzzer* buzzer = new Buzzer;
-    zenCore.registerModule(buzzer);
+    auto buzzer = std::make_unique<Buzzer>();
+    Buzzer* buzzerPtr = buzzer.get();
+    zenCore.registerModule(std::move(buzzer));
 
-    InputManager* inputManager = new InputManager;
+    auto inputManager = std::make_unique<InputManager>();
     if (inputManager)
     {
-        inputManager->bindButton(ButtonID::A, [buzzer]() {
-            if (buzzer) buzzer->makeSound();
+        inputManager->bindButton(ButtonID::A, [buzzerPtr]() {
+            if (buzzerPtr) buzzerPtr->makeSound();
         });
 
-        inputManager->bindButton(ButtonID::B, [buzzer]() {
-            if (buzzer) buzzer->mute();
+        inputManager->bindButton(ButtonID::B, [buzzerPtr]() {
+            if (buzzerPtr) buzzerPtr->mute();
         });
     }
-    zenCore.registerModule(inputManager);
+    zenCore.registerModule(std::move(inputManager));
 
-    DisplayDriver* display = new DisplayDriver(BoardConfig::DISPLAY_CONFIG);
+    auto display = std::make_unique<DisplayDriver>(BoardConfig::DISPLAY_CONFIG);
 
-    zenCore.registerModule(display);
+    zenCore.registerModule(std::move(display));
 }

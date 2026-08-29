@@ -5,21 +5,11 @@
 #include "esp_log.h"
 #include "esp_chip_info.h"
 
-#include "core/IModule.h"
-
 static const char *TAG = "ZEN_OS";
 
-ZenCore::~ZenCore()
+void ZenCore::registerModule(std::unique_ptr<IModule> module)
 {
-    for (IModule* module : _modules)
-    {
-        delete module;
-    }
-}
-
-void ZenCore::registerModule(IModule* module)
-{
-    _modules.push_back(module);
+    _modules.push_back(std::move(module));
 }
 
 void ZenCore::init()
@@ -36,7 +26,7 @@ void ZenCore::update()
 
 void ZenCore::initAllModules()
 {
-    for (IModule* module : _modules)
+    for (auto& module : _modules)
     {
         module->init();
     }
@@ -44,7 +34,7 @@ void ZenCore::initAllModules()
 
 void ZenCore::updateAllModules()
 {
-    for (IModule* module : _modules)
+    for (auto& module : _modules)
     {
         module->update();
     }
