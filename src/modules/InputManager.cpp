@@ -4,6 +4,8 @@
 
 #include "drivers/Button.h"
 
+static const char* TAG = "InputManager";
+
 InputManager::InputManager()
 {
     initializeArrayButtons();
@@ -43,7 +45,7 @@ void InputManager::initializeArrayButtons()
 
 void InputManager::setupButtons()
 {
-    ESP_LOGI("TEMP!!! Log wrapper needed", "Initializing %d buttons...", BUTTON_COUNT);
+    ESP_LOGI(TAG, "Initializing %d buttons...", BUTTON_COUNT);
 
     for (int i = 0; i < BUTTON_COUNT; i++)
     {
@@ -57,7 +59,7 @@ void InputManager::setupButtons()
         ESP_ERROR_CHECK(gpio_config(&io_conf));
     }
 
-    ESP_LOGI("TEMP!!! Log wrapper needed", "Gamepad initialized successfully!");
+    ESP_LOGI(TAG, "Gamepad initialized successfully!");
     printf("\n");
 }
 
@@ -69,7 +71,7 @@ void InputManager::updateButtons()
 
         if (current_state == 0 && _buttons[i].last_state == 1)
         {
-            ESP_LOGI("TEMP!!! Log wrapper needed", ">>> BUTTON [%s] PRESSED! <<<", _buttons[i].name);
+            ESP_LOGI(TAG, ">>> BUTTON [%s] PRESSED! <<<", _buttons[i].name);
 
             if (_buttons[i].on_press != nullptr)
             {
@@ -78,7 +80,7 @@ void InputManager::updateButtons()
         }
         else if (current_state == 1 && _buttons[i].last_state == 0)
         {
-            ESP_LOGI("TEMP!!! Log wrapper needed", ">>> BUTTON [%s] RELEASED! <<<", _buttons[i].name);
+            ESP_LOGI(TAG, ">>> BUTTON [%s] RELEASED! <<<", _buttons[i].name);
         }
 
         _buttons[i].last_state = current_state;
