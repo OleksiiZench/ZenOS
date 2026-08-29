@@ -4,6 +4,8 @@
 #include <freertos/FreeRTOS.h>
 #include "freertos/task.h"
 
+#include "drivers/ST7789Commands.h"
+
 static const char* TAG = "DisplayDriver";
 
 DisplayDriver::DisplayDriver(const DisplayConfig& config)
@@ -91,24 +93,24 @@ void DisplayDriver::initSPI()
 
 void DisplayDriver::initController()
 {
-    sendCmd(0x01);
+    sendCmd(ST7789Cmd::SWRESET);
     vTaskDelay(pdMS_TO_TICKS(150));
 
-    sendCmd(0x11);
+    sendCmd(ST7789Cmd::SLPOUT);
     vTaskDelay(pdMS_TO_TICKS(50));
 
-    sendCmd(0x3A);
+    sendCmd(ST7789Cmd::COLMOD);
     uint8_t colmod = 0x55;
     sendData(&colmod, 1);
 
-    sendCmd(0x36);
+    sendCmd(ST7789Cmd::MADCTL);
     uint8_t madctl = 0x00;
     sendData(&madctl, 1);
 
-    sendCmd(0x21);
+    sendCmd(ST7789Cmd::INVON);
     vTaskDelay(pdMS_TO_TICKS(10));
 
-    sendCmd(0x29);
+    sendCmd(ST7789Cmd::DISPON);
     vTaskDelay(pdMS_TO_TICKS(50));
 }
 
@@ -124,24 +126,24 @@ void DisplayDriver::turnOnBacklight()
 
 void DisplayDriver::setAddrWindow(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
 {
-    y1 += 20;
-    y2 += 20;
+    y1 += _config.panel_y_offset;
+    y2 += _config.panel_y_offset;
 
-    sendCmd(0x2A);
+    sendCmd(ST7789Cmd::CASET);
     uint8_t caset[4] = {
         static_cast<uint8_t>(x1 >> 8), static_cast<uint8_t>(x1 & 0xFF),
         static_cast<uint8_t>(x2 >> 8), static_cast<uint8_t>(x2 & 0xFF)
     };
     sendData(caset, 4);
 
-    sendCmd(0x2B);
+    sendCmd(ST7789Cmd::RASET);
     uint8_t raset[4] = {
         static_cast<uint8_t>(y1 >> 8), static_cast<uint8_t>(y1 & 0xFF),
         static_cast<uint8_t>(y2 >> 8), static_cast<uint8_t>(y2 & 0xFF)
     };
     sendData(raset, 4);
 
-    sendCmd(0x2C);
+    sendCmd(ST7789Cmd::RAMWR);
 }
 
 void DisplayDriver::sendCmd(uint8_t cmd)

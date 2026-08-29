@@ -13,6 +13,7 @@ namespace BoardConfig
         .pin_rst          = GPIO_NUM_NC,
         .width            = 240,
         .height           = 280,
-        .default_bg_color = 0x07E0
+        .default_bg_color = 0x07E0,
+        .panel_y_offset = 20
     };
 }
