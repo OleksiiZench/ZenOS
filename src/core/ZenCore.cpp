@@ -26,7 +26,7 @@ void ZenCore::update()
 
 void ZenCore::initAllModules()
 {
-    for (auto& module : _modules)
+    for (std::unique_ptr<IModule>& module : _modules)
     {
         module->init();
     }
@@ -34,7 +34,7 @@ void ZenCore::initAllModules()
 
 void ZenCore::updateAllModules()
 {
-    for (auto& module : _modules)
+    for (std::unique_ptr<IModule>& module : _modules)
     {
         module->update();
     }
