@@ -164,5 +164,5 @@ void DisplayDriver::sendData(const uint8_t *data, size_t len)
     spi_transaction_t t = {};
     t.length = len * 8; // Length in bits
     t.tx_buffer = data;
-    spi_device_polling_transmit(_spi, &t);
+    spi_device_transmit(_spi, &t);
 }
