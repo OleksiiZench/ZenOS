@@ -16,6 +16,7 @@ public:
     void bindButton(ButtonID id, std::function<void()> action);
 private:
     static constexpr int BUTTON_COUNT = static_cast<int>(ButtonID::Max);
+    static constexpr TickType_t DEBOUNCE_TICKS = pdMS_TO_TICKS(20);
 
     Button _buttons[BUTTON_COUNT];
 
