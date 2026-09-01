@@ -22,15 +22,19 @@ void Buzzer::makeSound()
         uint32_t duration;
     };
 
+    // Melody: Tetris (Korobeiniki)
     Note melody[] = {
-        { 988, 100 },
-        { 1319, 400 }
+        { 659, 250 }, { 494, 125 }, { 523, 125 }, { 587, 250 },
+        { 523, 125 }, { 494, 125 }, { 440, 250 }, { 440, 125 },
+        { 523, 125 }, { 659, 250 }, { 587, 125 }, { 523, 125 },
+        { 494, 375 }, { 523, 125 }, { 587, 250 }, { 659, 250 },
+        { 523, 250 }, { 440, 250 }, { 440, 500 }
     };
 
     for (const Note& note : melody)
     {
         playTone(note.freq, note.duration);
-        vTaskDelay(pdMS_TO_TICKS(50));
+        vTaskDelay(pdMS_TO_TICKS(30));
     }
 }
 
@@ -72,7 +76,7 @@ void Buzzer::playTone(uint32_t freq, uint32_t duration_ms)
     if (freq > 0)
     {
         ledc_set_freq(LEDC_LOW_SPEED_MODE, LEDC_TIMER_0, freq);
-        ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, 127);
+        ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, 250);
         ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
     }
     else
