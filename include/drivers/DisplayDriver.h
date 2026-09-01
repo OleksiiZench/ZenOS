@@ -18,7 +18,7 @@ public:
 private:
     DisplayConfig _config;
     spi_device_handle_t _spi = nullptr;
-    const uint16_t ROWS_PER_CHUNK = 20;
+    static constexpr uint16_t ROWS_PER_CHUNK = 20;
 
     void initSPI();
     void initController();
