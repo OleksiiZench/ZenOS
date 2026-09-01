@@ -15,15 +15,18 @@ DisplayDriver::DisplayDriver(const DisplayConfig& config)
 
 void DisplayDriver::init()
 {
+    setupBacklightPin();
+
+    turnOffBacklight();
+
     initSPI();
     initController();
-    turnOnBacklight();
 
-    bool is_filled = fillScreen(_config.default_bg_color);
-    if (!is_filled)
-    {
-        ESP_LOGE(TAG, "init: initial screen clear failed");
-    }
+    clearScreen();
+
+    turnOnDisplay();
+
+    turnOnBacklight();
 }
 
 bool DisplayDriver::fillScreen(uint16_t color)
@@ -64,6 +67,23 @@ bool DisplayDriver::fillScreen(uint16_t color)
     return true;
 }
 
+void DisplayDriver::setupBacklightPin()
+{
+    if (_config.pin_backlight == GPIO_NUM_NC)
+        return;
+
+    gpio_reset_pin(_config.pin_backlight);
+    gpio_set_direction(_config.pin_backlight, GPIO_MODE_OUTPUT);
+}
+
+void DisplayDriver::turnOffBacklight()
+{
+    if (_config.pin_backlight == GPIO_NUM_NC)
+        return;
+
+    gpio_set_level(_config.pin_backlight, 0);
+}
+
 void DisplayDriver::initSPI()
 {
     // DC pin settings
@@ -97,7 +117,7 @@ void DisplayDriver::initController()
     vTaskDelay(pdMS_TO_TICKS(150));
 
     sendCmd(ST7789Cmd::SLPOUT);
-    vTaskDelay(pdMS_TO_TICKS(50));
+    vTaskDelay(pdMS_TO_TICKS(120));
 
     sendCmd(ST7789Cmd::COLMOD);
     uint8_t colmod = 0x55;
@@ -109,18 +129,28 @@ void DisplayDriver::initController()
 
     sendCmd(ST7789Cmd::INVON);
     vTaskDelay(pdMS_TO_TICKS(10));
+}
 
+void DisplayDriver::clearScreen()
+{
+    bool is_filled = fillScreen(_config.default_bg_color);
+    if (!is_filled)
+    {
+        ESP_LOGE(TAG, "init: initial screen clear failed");
+    }
+}
+
+void DisplayDriver::turnOnDisplay()
+{
     sendCmd(ST7789Cmd::DISPON);
-    vTaskDelay(pdMS_TO_TICKS(50));
+    vTaskDelay(pdMS_TO_TICKS(120));
 }
 
 void DisplayDriver::turnOnBacklight()
 {
     if (_config.pin_backlight == GPIO_NUM_NC)
         return;
-
-    gpio_reset_pin(_config.pin_backlight);
-    gpio_set_direction(_config.pin_backlight, GPIO_MODE_OUTPUT);
+        
     gpio_set_level(_config.pin_backlight, 1);
 }
 

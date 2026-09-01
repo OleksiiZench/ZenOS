@@ -20,8 +20,12 @@ private:
     spi_device_handle_t _spi = nullptr;
     static constexpr uint16_t ROWS_PER_CHUNK = 20;
 
+    void setupBacklightPin();
+    void turnOffBacklight();
     void initSPI();
     void initController();
+    void clearScreen();
+    void turnOnDisplay();
     void turnOnBacklight();
 
     void setAddrWindow(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
