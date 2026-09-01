@@ -2,6 +2,11 @@
 
 #include "driver/ledc.h"
 
+Buzzer::Buzzer(gpio_num_t pin)
+{
+    _pin = pin;
+}
+
 void Buzzer::init()
 {
     setupBuzzer();
@@ -21,9 +26,9 @@ void Buzzer::mute()
 
 void Buzzer::setupBuzzer()
 {
-    gpio_reset_pin(GPIO_NUM_11);
-    gpio_set_direction(GPIO_NUM_11, GPIO_MODE_OUTPUT);
-    gpio_set_level(GPIO_NUM_11, 0);
+    gpio_reset_pin(_pin);
+    gpio_set_direction(_pin, GPIO_MODE_OUTPUT);
+    gpio_set_level(_pin, 0);
 
     ledc_timer_config_t ledc_timer = {};
     ledc_timer.speed_mode       = LEDC_LOW_SPEED_MODE;
@@ -35,7 +40,7 @@ void Buzzer::setupBuzzer()
     ESP_ERROR_CHECK(ledc_timer_config(&ledc_timer));
 
     ledc_channel_config_t ledc_channel = {};
-    ledc_channel.gpio_num       = GPIO_NUM_11;
+    ledc_channel.gpio_num       = _pin;
     ledc_channel.speed_mode     = LEDC_LOW_SPEED_MODE;
     ledc_channel.channel        = LEDC_CHANNEL_0;
     ledc_channel.timer_sel      = LEDC_TIMER_0;

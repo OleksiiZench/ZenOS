@@ -4,6 +4,8 @@
 
 namespace BoardConfig
 {
+    constexpr gpio_num_t PIN_BUZZER = GPIO_NUM_11;
+
     constexpr DisplayConfig DISPLAY_CONFIG = {
         .pin_backlight    = GPIO_NUM_46,
         .pin_mosi         = GPIO_NUM_17,

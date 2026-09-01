@@ -13,7 +13,7 @@ void SystemBuilder::buildLilka(ZenCore& zenCore)
     std::unique_ptr<BootSplash> bootSplash = std::make_unique<BootSplash>(5);
     zenCore.registerModule(std::move(bootSplash));
 
-    std::unique_ptr<Buzzer> buzzer = std::make_unique<Buzzer>();
+    std::unique_ptr<Buzzer> buzzer = std::make_unique<Buzzer>(BoardConfig::PIN_BUZZER);
     Buzzer* buzzerPtr = buzzer.get();
     zenCore.registerModule(std::move(buzzer));
 
