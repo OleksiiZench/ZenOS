@@ -25,7 +25,7 @@ void SystemBuilder::buildLilka(ZenCore& zenCore)
         });
 
         inputManager->bindButton(ButtonID::B, [buzzerPtr]() {
-            if (buzzerPtr) buzzerPtr->mute();
+            if (buzzerPtr) buzzerPtr->stop();
         });
     }
     zenCore.registerModule(std::move(inputManager));

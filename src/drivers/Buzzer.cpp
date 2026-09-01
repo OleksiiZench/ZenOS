@@ -1,8 +1,36 @@
 #include "drivers/Buzzer.h"
 
 #include "driver/ledc.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
+
+struct Note
+{
+    uint32_t freq;
+    uint32_t duration;
+};
+
+// Melody: Bad Apple!! (~24 seconds)
+static const Note BAD_APPLE_MELODY[] = {
+    {622, 180}, {698, 180}, {740, 180}, {831, 180}, {932, 180}, {1245, 180}, {1109, 180}, {932, 180},
+    {831, 180}, {740, 180}, {698, 180}, {622, 180}, {698, 180}, {740, 180}, {831, 180}, {932, 180},
+    {831, 180}, {740, 180}, {698, 180}, {622, 360},
+    {622, 180}, {698, 180}, {740, 180}, {831, 180}, {932, 180}, {1245, 180}, {1109, 180}, {932, 180},
+    {831, 180}, {740, 180}, {698, 180}, {622, 180}, {698, 180}, {740, 180}, {831, 180}, {932, 180},
+    {1109, 180}, {932, 180}, {831, 180}, {740, 180}, {622, 360},
+    {622, 360}, {466, 360}, {740, 360}, {698, 360}, {622, 360}, {466, 360}, {415, 180}, {466, 180},
+    {494, 180}, {466, 180}, {622, 360}, {466, 360}, {740, 360}, {698, 360}, {622, 360}, {466, 360},
+    {415, 360}, {466, 360},
+    {622, 360}, {466, 360}, {740, 360}, {698, 360}, {622, 360}, {466, 360}, {415, 180}, {466, 180},
+    {494, 180}, {466, 180}, {622, 360}, {466, 360}, {740, 360}, {698, 360}, {622, 360}, {466, 360},
+    {415, 360}, {466, 360},
+    {494, 180}, {554, 180}, {622, 180}, {554, 180}, {494, 180}, {554, 180}, {622, 180}, {554, 180},
+    {494, 180}, {554, 180}, {622, 180}, {698, 180}, {740, 180}, {698, 180}, {622, 180}, {554, 180},
+    {622, 180}, {554, 180}, {466, 180}, {415, 180}, {370, 180}, {415, 180}, {466, 180}, {554, 180},
+    {622, 180}, {554, 180}, {466, 180}, {415, 180}, {370, 180}, {349, 180}, {311, 180}, {349, 180},
+    {370, 360}, {415, 360}, {466, 180}, {554, 180}, {622, 360},
+    {622, 180}, {554, 180}, {466, 180}, {415, 180}, {370, 180}, {349, 180}, {311, 360}
+};
+
+static const size_t MELODY_LENGTH = sizeof(BAD_APPLE_MELODY) / sizeof(BAD_APPLE_MELODY[0]);
 
 Buzzer::Buzzer(gpio_num_t pin)
 {
@@ -14,47 +42,59 @@ void Buzzer::init()
     setupBuzzer();
 }
 
-void Buzzer::makeSound()
+void Buzzer::update()
 {
-    struct Note
-    {
-        uint32_t freq;
-        uint32_t duration;
-    };
+    if (!_is_playing)
+        return;
 
-    // Melody: Bad Apple!! (~24 seconds)
-    Note melody[] = {
-        {622, 180}, {698, 180}, {740, 180}, {831, 180}, {932, 180}, {1245, 180}, {1109, 180}, {932, 180},
-        {831, 180}, {740, 180}, {698, 180}, {622, 180}, {698, 180}, {740, 180}, {831, 180}, {932, 180},
-        {831, 180}, {740, 180}, {698, 180}, {622, 360},
-        {622, 180}, {698, 180}, {740, 180}, {831, 180}, {932, 180}, {1245, 180}, {1109, 180}, {932, 180},
-        {831, 180}, {740, 180}, {698, 180}, {622, 180}, {698, 180}, {740, 180}, {831, 180}, {932, 180},
-        {1109, 180}, {932, 180}, {831, 180}, {740, 180}, {622, 360},
-        {622, 360}, {466, 360}, {740, 360}, {698, 360}, {622, 360}, {466, 360}, {415, 180}, {466, 180},
-        {494, 180}, {466, 180}, {622, 360}, {466, 360}, {740, 360}, {698, 360}, {622, 360}, {466, 360},
-        {415, 360}, {466, 360},
-        {622, 360}, {466, 360}, {740, 360}, {698, 360}, {622, 360}, {466, 360}, {415, 180}, {466, 180},
-        {494, 180}, {466, 180}, {622, 360}, {466, 360}, {740, 360}, {698, 360}, {622, 360}, {466, 360},
-        {415, 360}, {466, 360},
-        {494, 180}, {554, 180}, {622, 180}, {554, 180}, {494, 180}, {554, 180}, {622, 180}, {554, 180},
-        {494, 180}, {554, 180}, {622, 180}, {698, 180}, {740, 180}, {698, 180}, {622, 180}, {554, 180},
-        {622, 180}, {554, 180}, {466, 180}, {415, 180}, {370, 180}, {415, 180}, {466, 180}, {554, 180},
-        {622, 180}, {554, 180}, {466, 180}, {415, 180}, {370, 180}, {349, 180}, {311, 180}, {349, 180},
-        {370, 360}, {415, 360}, {466, 180}, {554, 180}, {622, 360},
-        {622, 180}, {554, 180}, {466, 180}, {415, 180}, {370, 180}, {349, 180}, {311, 360}
-    };
+    TickType_t now = xTaskGetTickCount();
+    uint32_t elapsed_ms = (now - _last_update_tick) * portTICK_PERIOD_MS;
 
-    for (const Note& note : melody)
+    if (_is_pause)
     {
-        playTone(note.freq, note.duration);
-        vTaskDelay(pdMS_TO_TICKS(20));
+        if (elapsed_ms >= PAUSE_DURATION_MS)
+        {
+            _is_pause = false;
+            _current_note_index++;
+
+            if (_current_note_index >= MELODY_LENGTH)
+            {
+                _is_playing = false;
+                return;
+            }
+
+            _last_update_tick = now;
+            startTone(BAD_APPLE_MELODY[_current_note_index].freq);
+        }
+    }
+    else
+    {
+        if (elapsed_ms >= BAD_APPLE_MELODY[_current_note_index].duration)
+        {
+            _is_pause = true;
+            _last_update_tick = now;
+            mute();
+        }
     }
 }
 
-void Buzzer::mute()
+void Buzzer::makeSound()
 {
-    ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, 0);
-    ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
+    if (_is_playing)
+        return;
+
+    _current_note_index = 0;
+    _is_playing = true;
+    _is_pause = false;
+    _last_update_tick = xTaskGetTickCount();
+
+    startTone(BAD_APPLE_MELODY[0].freq);
+}
+
+void Buzzer::stop()
+{
+    _is_playing = false;
+    mute();
 }
 
 void Buzzer::setupBuzzer()
@@ -84,19 +124,22 @@ void Buzzer::setupBuzzer()
     ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel));
 }
 
-void Buzzer::playTone(uint32_t freq, uint32_t duration_ms)
+void Buzzer::startTone(uint32_t freq)
 {
     if (freq > 0)
     {
         ledc_set_freq(LEDC_LOW_SPEED_MODE, LEDC_TIMER_0, freq);
-        ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, 250);
+        ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, 127);
         ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
     }
     else
     {
         mute();
     }
+}
 
-    vTaskDelay(pdMS_TO_TICKS(duration_ms));
-    mute();
+void Buzzer::mute()
+{
+    ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, 0);
+    ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
 }
