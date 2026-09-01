@@ -18,4 +18,5 @@ private:
     gpio_num_t _pin;
 
     void setupBuzzer();
+    void playTone(uint32_t freq, uint32_t duration_ms);
 };

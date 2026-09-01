@@ -1,6 +1,8 @@
 #include "drivers/Buzzer.h"
 
 #include "driver/ledc.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
 Buzzer::Buzzer(gpio_num_t pin)
 {
@@ -14,8 +16,22 @@ void Buzzer::init()
 
 void Buzzer::makeSound()
 {
-    ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, 127);
-    ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
+    struct Note
+    {
+        uint32_t freq;
+        uint32_t duration;
+    };
+
+    Note melody[] = {
+        { 988, 100 },
+        { 1319, 400 }
+    };
+
+    for (const Note& note : melody)
+    {
+        playTone(note.freq, note.duration);
+        vTaskDelay(pdMS_TO_TICKS(50));
+    }
 }
 
 void Buzzer::mute()
@@ -49,4 +65,21 @@ void Buzzer::setupBuzzer()
     ledc_channel.hpoint         = 0;
 
     ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel));
+}
+
+void Buzzer::playTone(uint32_t freq, uint32_t duration_ms)
+{
+    if (freq > 0)
+    {
+        ledc_set_freq(LEDC_LOW_SPEED_MODE, LEDC_TIMER_0, freq);
+        ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, 127);
+        ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
+    }
+    else
+    {
+        mute();
+    }
+
+    vTaskDelay(pdMS_TO_TICKS(duration_ms));
+    mute();
 }
