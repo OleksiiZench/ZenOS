@@ -7,6 +7,7 @@
 #include "drivers/DisplayDriver.h"
 #include "boards/BoardConfig.h"
 #include "modules/BootSplash.h"
+#include "audio/Melodies.h"
 
 void SystemBuilder::buildLilka(ZenCore& zenCore)
 {
@@ -21,7 +22,7 @@ void SystemBuilder::buildLilka(ZenCore& zenCore)
     if (inputManager)
     {
         inputManager->bindButton(ButtonID::A, [buzzerPtr]() {
-            if (buzzerPtr) buzzerPtr->makeSound();
+            if (buzzerPtr) buzzerPtr->playMelody(Melodies::BadApple);
         });
 
         inputManager->bindButton(ButtonID::B, [buzzerPtr]() {

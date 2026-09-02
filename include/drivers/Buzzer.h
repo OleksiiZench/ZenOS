@@ -6,6 +6,21 @@
 
 #include "core/IModule.h"
 
+struct Note
+{
+    uint32_t freq;
+    uint32_t duration;
+};
+
+struct Melody
+{
+    const Note* notes;
+    size_t length;
+};
+
+
+
+
 class Buzzer : public IModule
 {
 public:
@@ -14,7 +29,7 @@ public:
     virtual void init() override;
     virtual void update() override;
 
-    void makeSound();
+    void playMelody(const Melody& melody);
     void stop();
 
 private:
@@ -24,6 +39,9 @@ private:
     bool _is_pause = false;
     size_t _current_note_index = 0;
     TickType_t _last_update_tick = 0;
+
+    const Note* _current_melody_notes = nullptr;
+    size_t _current_melodu_length = 0;
 
     static constexpr uint32_t PAUSE_DURATION_MS = 20;
 
