@@ -30,4 +30,7 @@ private:
     void setupBuzzer();
     void startTone(uint32_t freq);
     void mute();
+
+    void updatePauseState(TickType_t now, uint32_t elapsed_ms);
+    void updateNoteState(TickType_t now, uint32_t elapsed_ms);
 };

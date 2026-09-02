@@ -52,29 +52,11 @@ void Buzzer::update()
 
     if (_is_pause)
     {
-        if (elapsed_ms >= PAUSE_DURATION_MS)
-        {
-            _is_pause = false;
-            _current_note_index++;
-
-            if (_current_note_index >= MELODY_LENGTH)
-            {
-                _is_playing = false;
-                return;
-            }
-
-            _last_update_tick = now;
-            startTone(BAD_APPLE_MELODY[_current_note_index].freq);
-        }
+        updatePauseState(now, elapsed_ms);
     }
     else
     {
-        if (elapsed_ms >= BAD_APPLE_MELODY[_current_note_index].duration)
-        {
-            _is_pause = true;
-            _last_update_tick = now;
-            mute();
-        }
+        updateNoteState(now, elapsed_ms);
     }
 }
 
@@ -142,4 +124,32 @@ void Buzzer::mute()
 {
     ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, 0);
     ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
+}
+
+void Buzzer::updatePauseState(TickType_t now, uint32_t elapsed_ms)
+{
+    if (elapsed_ms < PAUSE_DURATION_MS)
+        return;
+
+    _is_pause = false;
+    _current_note_index++;
+
+    if (_current_note_index >= MELODY_LENGTH)
+    {
+        stop();
+        return;
+    }
+
+    _last_update_tick = now;
+    startTone(BAD_APPLE_MELODY[_current_note_index].freq);
+}
+
+void Buzzer::updateNoteState(TickType_t now, uint32_t elapsed_ms)
+{
+    if (elapsed_ms < BAD_APPLE_MELODY[_current_note_index].duration)
+        return;
+
+    _is_pause = true;
+    _last_update_tick = now;
+    mute();
 }
