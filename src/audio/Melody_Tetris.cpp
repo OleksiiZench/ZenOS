@@ -11,5 +11,6 @@ static const Note TETRIS_NOTES[] = {
 
 const Melody Melodies::Tetris = {
     TETRIS_NOTES,
-    sizeof(TETRIS_NOTES) / sizeof(TETRIS_NOTES[0])
+    sizeof(TETRIS_NOTES) / sizeof(TETRIS_NOTES[0]),
+    30
 };

@@ -8,5 +8,6 @@ static const Note MARIO_COIN_NOTES[] = {
 
 const Melody Melodies::MarioCoin = {
     MARIO_COIN_NOTES,
-    sizeof(MARIO_COIN_NOTES) / sizeof(MARIO_COIN_NOTES[0])
+    sizeof(MARIO_COIN_NOTES) / sizeof(MARIO_COIN_NOTES[0]),
+    50
 };

@@ -37,6 +37,7 @@ void Buzzer::playMelody(const Melody& melody)
 
     _current_melody_notes = melody.notes;
     _current_melodu_length = melody.length;
+    _current_pause_ms = melody.pause_ms;
 
     _current_note_index = 0;
     _is_playing = true;
@@ -101,7 +102,7 @@ void Buzzer::mute()
 
 void Buzzer::updatePauseState(TickType_t now, uint32_t elapsed_ms)
 {
-    if (elapsed_ms < PAUSE_DURATION_MS)
+    if (elapsed_ms < _current_pause_ms)
         return;
 
     _is_pause = false;

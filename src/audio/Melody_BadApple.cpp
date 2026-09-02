@@ -24,5 +24,6 @@ static const Note BAD_APPLE_NOTES[] = {
 
 const Melody Melodies::BadApple = {
     BAD_APPLE_NOTES,
-    sizeof(BAD_APPLE_NOTES) / sizeof(BAD_APPLE_NOTES[0])
+    sizeof(BAD_APPLE_NOTES) / sizeof(BAD_APPLE_NOTES[0]),
+    20
 };

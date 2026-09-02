@@ -16,6 +16,7 @@ struct Melody
 {
     const Note* notes;
     size_t length;
+    uint32_t pause_ms;
 };
 
 
@@ -42,8 +43,7 @@ private:
 
     const Note* _current_melody_notes = nullptr;
     size_t _current_melodu_length = 0;
-
-    static constexpr uint32_t PAUSE_DURATION_MS = 20;
+    uint32_t _current_pause_ms = 0;
 
     void setupBuzzer();
     void startTone(uint32_t freq);
