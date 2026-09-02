@@ -1,6 +1,6 @@
 #include "audio/Melodies.h"
 
-// Melody: Bad Apple!! (~24 seconds)
+// Melody: Bad Apple (~24 seconds)
 static const Note BAD_APPLE_NOTES[] = {
     {622, 180}, {698, 180}, {740, 180}, {831, 180}, {932, 180}, {1245, 180}, {1109, 180}, {932, 180},
     {831, 180}, {740, 180}, {698, 180}, {622, 180}, {698, 180}, {740, 180}, {831, 180}, {932, 180},

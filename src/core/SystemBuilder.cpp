@@ -22,6 +22,10 @@ void SystemBuilder::buildLilka(ZenCore& zenCore)
     if (inputManager)
     {
         inputManager->bindButton(ButtonID::A, [buzzerPtr]() {
+            if (buzzerPtr) buzzerPtr->playMelody(Melodies::MarioCoin);
+        });
+
+        inputManager->bindButton(ButtonID::Right, [buzzerPtr]() {
             if (buzzerPtr) buzzerPtr->playMelody(Melodies::BadApple);
         });
 
