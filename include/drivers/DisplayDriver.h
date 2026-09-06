@@ -15,10 +15,11 @@ public:
 
     bool fillScreen(uint16_t color);
 
+    static constexpr uint16_t ROWS_PER_CHUNK = 20;
+
 private:
     DisplayConfig _config;
     spi_device_handle_t _spi = nullptr;
-    static constexpr uint16_t ROWS_PER_CHUNK = 20;
 
     void setupBacklightPin();
     void turnOffBacklight();
