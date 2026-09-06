@@ -11,5 +11,5 @@ inline TickType_t xTaskGetTickCount()
 
 inline void vTaskDelay(TickType_t ticks)
 {
-    
+    mock_tick_count += ticks;
 }
