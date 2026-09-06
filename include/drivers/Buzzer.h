@@ -44,7 +44,7 @@ private:
     TickType_t _last_update_tick = 0;
 
     const Note* _current_melody_notes = nullptr;
-    size_t _current_melodu_length = 0;
+    size_t _current_melody_length = 0;
     uint32_t _current_pause_ms = 0;
 
     void setupBuzzer();

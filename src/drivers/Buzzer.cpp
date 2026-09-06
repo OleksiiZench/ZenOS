@@ -36,7 +36,7 @@ void Buzzer::playMelody(const Melody& melody)
         return;
 
     _current_melody_notes = melody.notes;
-    _current_melodu_length = melody.length;
+    _current_melody_length = melody.length;
     _current_pause_ms = melody.pause_ms;
 
     _current_note_index = 0;
@@ -108,7 +108,7 @@ void Buzzer::updatePauseState(TickType_t now, uint32_t elapsed_ms)
     _is_pause = false;
     _current_note_index++;
 
-    if (_current_note_index >= _current_melodu_length)
+    if (_current_note_index >= _current_melody_length)
     {
         stop();
         return;
