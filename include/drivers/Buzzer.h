@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstddef>
+
 #include "driver/gpio.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
