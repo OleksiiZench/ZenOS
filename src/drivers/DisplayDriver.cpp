@@ -62,7 +62,7 @@ bool DisplayDriver::fillScreen(uint16_t color)
         sendData(buffer, chunk_bytes);
     }
 
-    free(buffer);
+    heap_caps_free(buffer);
 
     return true;
 }
