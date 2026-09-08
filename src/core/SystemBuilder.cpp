@@ -8,6 +8,7 @@
 #include "boards/BoardConfig.h"
 #include "modules/BootSplash.h"
 #include "audio/Melodies.h"
+#include "drivers/OLEDDriver.h"
 
 void SystemBuilder::buildLilka(ZenCore& zenCore)
 {
@@ -36,6 +37,15 @@ void SystemBuilder::buildLilka(ZenCore& zenCore)
     zenCore.registerModule(std::move(inputManager));
 
     std::unique_ptr<DisplayDriver> display = std::make_unique<DisplayDriver>(BoardConfig::DISPLAY_CONFIG);
-
     zenCore.registerModule(std::move(display));
+
+    if (OLEDDriver::isDeviceAttached(BoardConfig::OLED_CONFIG))
+    {
+        auto oled_display = new OLEDDriver();
+
+        // TODO: Display must be initialized if it is pinged; otherwise, it should be ignored
+    }
+    else
+    {
+    }
 }
