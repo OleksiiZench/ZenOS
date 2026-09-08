@@ -73,7 +73,6 @@ void Buzzer::setupBuzzer()
     ledc_channel.speed_mode     = LEDC_LOW_SPEED_MODE;
     ledc_channel.channel        = LEDC_CHANNEL_0;
     ledc_channel.timer_sel      = LEDC_TIMER_0;
-    ledc_channel.intr_type      = LEDC_INTR_DISABLE;
     ledc_channel.duty           = 0;
     ledc_channel.hpoint         = 0;
 
