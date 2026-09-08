@@ -33,7 +33,9 @@ public:
     virtual void update() override;
 
     void playMelody(const Melody& melody);
+    void startTone(uint32_t freq);
     void stop();
+    void mute();
 
 private:
     gpio_num_t _pin;
@@ -48,8 +50,6 @@ private:
     uint32_t _current_pause_ms = 0;
 
     void setupBuzzer();
-    void startTone(uint32_t freq);
-    void mute();
 
     void updatePauseState(TickType_t now, uint32_t elapsed_ms);
     void updateNoteState(TickType_t now, uint32_t elapsed_ms);

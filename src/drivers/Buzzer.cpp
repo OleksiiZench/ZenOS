@@ -47,10 +47,30 @@ void Buzzer::playMelody(const Melody& melody)
     startTone(_current_melody_notes[0].freq);
 }
 
+void Buzzer::startTone(uint32_t freq)
+{
+    if (freq > 0)
+    {
+        ledc_set_freq(LEDC_LOW_SPEED_MODE, LEDC_TIMER_0, freq);
+        ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, 127);
+        ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
+    }
+    else
+    {
+        mute();
+    }
+}
+
 void Buzzer::stop()
 {
     _is_playing = false;
     mute();
+}
+
+void Buzzer::mute()
+{
+    ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, 0);
+    ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
 }
 
 void Buzzer::setupBuzzer()
@@ -77,26 +97,6 @@ void Buzzer::setupBuzzer()
     ledc_channel.hpoint         = 0;
 
     ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel));
-}
-
-void Buzzer::startTone(uint32_t freq)
-{
-    if (freq > 0)
-    {
-        ledc_set_freq(LEDC_LOW_SPEED_MODE, LEDC_TIMER_0, freq);
-        ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, 127);
-        ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
-    }
-    else
-    {
-        mute();
-    }
-}
-
-void Buzzer::mute()
-{
-    ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, 0);
-    ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
 }
 
 void Buzzer::updatePauseState(TickType_t now, uint32_t elapsed_ms)
