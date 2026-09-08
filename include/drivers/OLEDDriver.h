@@ -24,6 +24,11 @@ private:
 
     void sendCommand(uint8_t cmd);
 
+    void setupI2CBus();
+    void sendInitSequence();
+
+    void drawScaledPixel(int x, int y, int scale);
+
     OLEDConfig _config;
     bool _is_active;
 

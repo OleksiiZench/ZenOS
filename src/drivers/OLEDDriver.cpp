@@ -31,37 +31,8 @@ void OLEDDriver::init()
     {
         _is_active = true;
 
-        // 1. Налаштовуємо шину НАЗАВЖДИ
-        i2c_master_bus_config_t bus_config = {};
-        bus_config.i2c_port = _config.i2c_port;
-        bus_config.sda_io_num = _config.pin_sda;
-        bus_config.scl_io_num = _config.pin_scl;
-        bus_config.clk_source = I2C_CLK_SRC_DEFAULT;
-        bus_config.glitch_ignore_cnt = 7;
-        bus_config.flags.enable_internal_pullup = 1;
-
-        i2c_new_master_bus(&bus_config, &_bus_handle);
-
-        i2c_device_config_t dev_config = {};
-        dev_config.dev_addr_length = I2C_ADDR_BIT_LEN_7;
-        dev_config.device_address = _config.address;
-        dev_config.scl_speed_hz = _config.clock_speed_hz;
-
-        i2c_master_bus_add_device(_bus_handle, &dev_config, &_dev_handle);
-
-        // 2. Відправляємо магічні байти ініціалізації SSD1306
-        const uint8_t init_sequence[] = {
-            0xAE, 0x20, 0x00, 0xB0, 0xC8, 0x00, 0x10, 0x40, 
-            0x81, 0xFF, 0xA1, 0xA6, 0xA8, 0x3F, 0xA4, 0xD3, 
-            0x00, 0xD5, 0x80, 0xD9, 0x22, 0xDA, 0x12, 0xDB, 
-            0x20, 0x8D, 0x14, 0xAF
-        };
-        for (uint8_t cmd : init_sequence)
-        {
-            sendCommand(cmd);
-        }
-
-        // 3. Малюємо наш логотип у буфер!
+        setupI2CBus();
+        sendInitSequence();
         drawLilkaLogo();
     }
     else
@@ -102,36 +73,43 @@ void OLEDDriver::drawPixel(int x, int y, bool white)
 
 void OLEDDriver::drawLilkaLogo()
 {
-    // Міні-шрифт для тексту "Lilka ;)"
     const uint8_t font[][5] = {
-        {0x7F, 0x40, 0x40, 0x40, 0x40}, // L
-        {0x00, 0x44, 0x7D, 0x40, 0x00}, // i
-        {0x00, 0x41, 0x7F, 0x40, 0x00}, // l
-        {0x7F, 0x08, 0x14, 0x22, 0x41}, // k
-        {0x20, 0x54, 0x54, 0x54, 0x78}, // a
-        {0x00, 0x00, 0x00, 0x00, 0x00}, // (пробіл)
-        {0x00, 0x56, 0x36, 0x00, 0x00}, // ;
-        {0x00, 0x41, 0x22, 0x1C, 0x00}  // )
+        { 0x7F, 0x40, 0x40, 0x40, 0x40 }, // L
+        { 0x00, 0x44, 0x7D, 0x40, 0x00 }, // i
+        { 0x00, 0x41, 0x7F, 0x40, 0x00 }, // l
+        { 0x7F, 0x08, 0x14, 0x22, 0x41 }, // k
+        { 0x20, 0x54, 0x54, 0x54, 0x78 }, // a
+        { 0x00, 0x00, 0x00, 0x00, 0x00 }, // (space)
+        { 0x00, 0x56, 0x36, 0x00, 0x00 }, // ;
+        { 0x00, 0x41, 0x22, 0x1C, 0x00 }  // )
     };
 
-    int x_offset = 18; // Зміщення по X
-    int y_offset = 24; // Зміщення по Y
+    constexpr int CHAR_WIDTH = 5;
+    constexpr int CHAR_HEIGHT = 8;
+    constexpr int CHAR_SPACING = 12;
+    constexpr int PIXEL_SCALE = 2;
 
-    // Проходимо по кожній літері
-    for (int char_idx = 0; char_idx < 8; char_idx++) {
-        for (int col = 0; col < 5; col++) {
-            uint8_t line = font[char_idx][col];
-            for (int row = 0; row < 8; row++) {
-                if (line & (1 << row)) {
-                    // Малюємо піксель, збільшений у 2 рази (2x2) для краси
-                    drawPixel(x_offset + col*2, y_offset + row*2);
-                    drawPixel(x_offset + col*2 + 1, y_offset + row*2);
-                    drawPixel(x_offset + col*2, y_offset + row*2 + 1);
-                    drawPixel(x_offset + col*2 + 1, y_offset + row*2 + 1);
+    int current_x = 18;
+    int current_y = 24;
+
+    // Використання range-based for loop робить код надійнішим (не залежить від розміру масиву)
+    for (const auto& char_bitmap : font)
+    {
+        for (int col = 0; col < CHAR_WIDTH; col++)
+        {
+            uint8_t line = char_bitmap[col];
+
+            for (int row = 0; row < CHAR_HEIGHT; row++)
+            {
+                if (line & (1 << row))
+                {
+                    drawScaledPixel(current_x + col * PIXEL_SCALE,
+                                    current_y + row * PIXEL_SCALE,
+                                    PIXEL_SCALE);
                 }
             }
         }
-        x_offset += 12; // Відступ між літерами
+        current_x += CHAR_SPACING;
     }
 }
 
@@ -173,4 +151,50 @@ void OLEDDriver::sendCommand(uint8_t cmd)
 {
     uint8_t data[2] = {0x00, cmd};
     i2c_master_transmit(_dev_handle, data, 2, -1);
+}
+
+void OLEDDriver::setupI2CBus()
+{
+    i2c_master_bus_config_t bus_config = {};
+    bus_config.i2c_port = _config.i2c_port;
+    bus_config.sda_io_num = _config.pin_sda;
+    bus_config.scl_io_num = _config.pin_scl;
+    bus_config.clk_source = I2C_CLK_SRC_DEFAULT;
+    bus_config.glitch_ignore_cnt = 7;
+    bus_config.flags.enable_internal_pullup = 1;
+
+    i2c_new_master_bus(&bus_config, &_bus_handle);
+
+    i2c_device_config_t dev_config = {};
+    dev_config.dev_addr_length = I2C_ADDR_BIT_LEN_7;
+    dev_config.device_address = _config.address;
+    dev_config.scl_speed_hz = _config.clock_speed_hz;
+
+    i2c_master_bus_add_device(_bus_handle, &dev_config, &_dev_handle);
+}
+
+void OLEDDriver::sendInitSequence()
+{
+    static const uint8_t init_sequence[] = {
+        0xAE, 0x20, 0x00, 0xB0, 0xC8, 0x00, 0x10, 0x40,
+        0x81, 0xFF, 0xA1, 0xA6, 0xA8, 0x3F, 0xA4, 0xD3,
+        0x00, 0xD5, 0x80, 0xD9, 0x22, 0xDA, 0x12, 0xDB,
+        0x20, 0x8D, 0x14, 0xAF
+    };
+
+    for (uint8_t cmd : init_sequence)
+    {
+        sendCommand(cmd);
+    }
+}
+
+void OLEDDriver::drawScaledPixel(int x, int y, int scale)
+{
+    for (int dx = 0; dx < scale; dx++) 
+    {
+        for (int dy = 0; dy < scale; dy++) 
+        {
+            drawPixel(x + dx, y + dy);
+        }
+    }
 }
