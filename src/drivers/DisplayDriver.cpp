@@ -73,7 +73,7 @@ void DisplayDriver::setupBacklightPin()
         return;
 
     gpio_reset_pin(_config.pin_backlight);
-    gpio_set_direction(_config.pin_backlight, GPIO_MODE_OUTPUT);
+    gpio_set_direction(_config.pin_backlight, GPIO_MODE_INPUT_OUTPUT);
 }
 
 void DisplayDriver::turnOffBacklight()
