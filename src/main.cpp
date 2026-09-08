@@ -11,6 +11,8 @@ void loop();
 
 ZenCore _zenCore;
 
+#ifndef PIO_UNIT_TESTING
+
 extern "C" void app_main(void)
 {
     setup();
@@ -37,3 +39,5 @@ void loop()
     
     vTaskDelay(pdMS_TO_TICKS(50));
 }
+
+#endif
