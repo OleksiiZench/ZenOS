@@ -13,6 +13,7 @@ public:
 
     virtual void init() override;
 
+    void deinit();
     bool fillScreen(uint16_t color);
 
     static constexpr uint16_t ROWS_PER_CHUNK = 20;

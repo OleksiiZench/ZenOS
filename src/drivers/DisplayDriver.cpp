@@ -29,6 +29,17 @@ void DisplayDriver::init()
     turnOnBacklight();
 }
 
+void DisplayDriver::deinit()
+{
+    if (_spi != nullptr)
+    {
+        spi_bus_remove_device(_spi);
+        _spi = nullptr;
+    }
+
+    spi_bus_free(SPI2_HOST);
+}
+
 bool DisplayDriver::fillScreen(uint16_t color)
 {
     setAddrWindow(0, 0, _config.width - 1, _config.height - 1);

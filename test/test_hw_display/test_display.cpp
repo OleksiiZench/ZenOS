@@ -13,7 +13,6 @@ void setUp(void)
 }
 void tearDown(void)
 {
-    spi_bus_free(SPI2_HOST);
 }
 
 void test_dma_memory_allocation(void)
@@ -58,6 +57,7 @@ void test_spi_bus_low_level_smoke_check(void)
     TEST_ASSERT_EQUAL_MESSAGE(ESP_OK, ret, "SPI Device add failed (check CS pin)");
 
     spi_bus_remove_device(spi_handle);
+    spi_bus_free(SPI2_HOST);
 }
 
 void test_display_driver_init_succeeds_on_hardware(void)
@@ -68,6 +68,8 @@ void test_display_driver_init_succeeds_on_hardware(void)
     display.init();
 
     TEST_ASSERT_EQUAL_MESSAGE(1, gpio_get_level(config.pin_backlight), "Backlight pin should be HIGH after init()");
+
+    display.deinit();
 }
 
 extern "C" void app_main()
