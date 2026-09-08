@@ -9,6 +9,8 @@
 #include "boards/BoardConfig.h"
 #include "drivers/DisplayDriver.h"
 #include "drivers/Buzzer.h"
+#include "modules/InputManager.h"
+#include "drivers/Button.h"
 
 static bool g_buzzer_was_initialized = false;
 
@@ -123,6 +125,56 @@ void test_buzzer_hardware_frequency_updates(void)
 }
 
 // ==========================================
+//             TESTS INPUT MANAGER (GPIO)
+// ==========================================
+void test_input_manager_simulated_button_press(void)
+{
+    InputManager input;
+    input.init();
+
+    bool a_button_pressed = false;
+
+    input.bindButton(ButtonID::A, [&a_button_pressed]() {
+        a_button_pressed = true;
+    });
+
+    gpio_set_direction(GPIO_NUM_5, GPIO_MODE_OUTPUT);
+    gpio_set_level(GPIO_NUM_5, 0);
+
+    constexpr int kPollIntervalMs = 10;
+    constexpr int kPollCount = (2 * InputManager::DEBOUNCE_TICKS * portTICK_PERIOD_MS) / kPollIntervalMs;
+
+    for (int i = 0; i < kPollCount; i++)
+    {
+        input.update();
+        vTaskDelay(pdMS_TO_TICKS(kPollIntervalMs));
+    }
+
+    gpio_set_direction(GPIO_NUM_5, GPIO_MODE_INPUT);
+
+    TEST_ASSERT_TRUE_MESSAGE(a_button_pressed, "Callback for Button A should be triggered after simulated press");
+}
+
+void test_input_manager_pullup_resistors_active(void)
+{
+    InputManager input;
+    input.init();
+
+    const gpio_num_t button_pins[] = {
+        GPIO_NUM_38, GPIO_NUM_41, GPIO_NUM_39, GPIO_NUM_40,
+        GPIO_NUM_5,  GPIO_NUM_6,  GPIO_NUM_10, GPIO_NUM_9,
+        GPIO_NUM_0,  GPIO_NUM_4
+    };
+
+    static_assert(std::size(button_pins) == InputManager::BUTTON_COUNT, "Pin list must match all button count");
+
+    for (int i = 0; i < InputManager::BUTTON_COUNT; i++)
+    {
+        TEST_ASSERT_EQUAL_MESSAGE(1, gpio_get_level(button_pins[i]), "Button pin should be HIGH (unpressed) due to pull-up");
+    }
+}
+
+// ==========================================
 //             MAIN START
 // ==========================================
 extern "C" void app_main()
@@ -139,6 +191,10 @@ extern "C" void app_main()
     // Running buzzer tests
     RUN_TEST(test_buzzer_initialization_succeeds_on_hardware);
     RUN_TEST(test_buzzer_hardware_frequency_updates);
+
+    // Running input manager tests
+    RUN_TEST(test_input_manager_simulated_button_press);
+    RUN_TEST(test_input_manager_pullup_resistors_active);
 
     UNITY_END();
 }
