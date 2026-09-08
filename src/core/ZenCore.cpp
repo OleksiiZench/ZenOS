@@ -14,9 +14,9 @@ void ZenCore::registerModule(std::unique_ptr<IModule> module)
 
 void ZenCore::init()
 {
-    logSystemInfo();
-
     initAllModules();
+
+    logSystemInfo();
 }
 
 void ZenCore::update()

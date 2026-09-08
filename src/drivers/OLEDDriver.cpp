@@ -1,43 +1,68 @@
 #include "drivers/OLEDDriver.h"
 
+#include "freertos/FreeRTOS.h"
 #include "esp_log.h"
 
 static const char* TAG = "OLEDDriver";
 
+OLEDDriver::OLEDDriver(const OLEDConfig& config)
+{
+    _config = config;
+    _is_active = false;
+}
+
+void OLEDDriver::init()
+{
+    if (isDeviceAttached(_config))
+    {
+        _is_active = true;
+
+        // TODO: implement initializatoin logic for SSD1306 itself
+    }
+    else
+    {
+        _is_active = false;
+    }
+}
+
+void OLEDDriver::update()
+{
+    if (!_is_active)
+        return;
+    
+    // TODO: logic for filling display
+}
+
 bool OLEDDriver::isDeviceAttached(const OLEDConfig& config)
 {
-    i2c_config_t conf = {};
-    conf.mode = I2C_MODE_MASTER;
-    conf.sda_io_num = config.pin_sda;
-    conf.scl_io_num = config.pin_scl;
-    conf.sda_pullup_en = GPIO_PULLUP_ENABLE;
-    conf.scl_pullup_en = GPIO_PULLUP_ENABLE;
-    conf.master.clk_speed = config.clock_speed_hz;
+    i2c_master_bus_config_t bus_config = {};
+    bus_config.i2c_port = config.i2c_port;
+    bus_config.sda_io_num = config.pin_sda;
+    bus_config.scl_io_num = config.pin_scl;
+    bus_config.clk_source = I2C_CLK_SRC_DEFAULT;
+    bus_config.glitch_ignore_cnt = 7;
+    bus_config.flags.enable_internal_pullup = 1;
 
-    i2c_param_config(config.i2c_port, &conf);
-    esp_err_t install_ret = i2c_driver_install(config.i2c_port, conf.mode, 0, 0, 0);
+    i2c_master_bus_handle_t bus_handle;
+    esp_err_t ret = i2c_new_master_bus(&bus_config, &bus_handle);
 
-    if (install_ret != ESP_OK)
+    if (ret != ESP_OK)
         return false;
 
-    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
-    i2c_master_start(cmd);
-    i2c_master_write_byte(cmd, (config.address << 1) | I2C_MASTER_WRITE, true);
-    i2c_master_stop(cmd);
+    esp_err_t probe_ret = i2c_master_probe(bus_handle, config.address, pdMS_TO_TICKS(100));
 
-    esp_err_t ping_ret = i2c_master_cmd_begin(config.i2c_port, cmd, pdMS_TO_TICKS(100));
-    i2c_cmd_link_delete(cmd);
+    i2c_del_master_bus(bus_handle);
 
-    i2c_driver_delete(config.i2c_port);
-
-    if (ping_ret == ESP_OK)
+    if (probe_ret == ESP_OK)
     {
         ESP_LOGI(TAG, "OLED Display detected at address 0x%02X!", config.address);
+        printf("\n");
         return true;
     }
     else
     {
         ESP_LOGW(TAG, "OLED Display NOT found.");
+        printf("\n");
         return false;
     }
 }
