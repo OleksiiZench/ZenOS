@@ -3,18 +3,33 @@
 #include "freertos/task.h"
 #include "esp_heap_caps.h"
 #include "driver/spi_master.h"
+#include "driver/ledc.h"
 #include "driver/gpio.h"
-#include "drivers/DisplayConfig.h"
+
 #include "boards/BoardConfig.h"
 #include "drivers/DisplayDriver.h"
+#include "drivers/Buzzer.h"
+
+static bool g_buzzer_was_initialized = false;
 
 void setUp(void)
 {
 }
+
 void tearDown(void)
 {
+    if (g_buzzer_was_initialized)
+    {
+        ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, 0);
+        ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
+
+        g_buzzer_was_initialized = false;
+    }
 }
 
+// ==========================================
+//             TESTS DISPLAY (SPI)
+// ==========================================
 void test_dma_memory_allocation(void)
 {
     DisplayConfig config = BoardConfig::DISPLAY_CONFIG;
@@ -72,15 +87,58 @@ void test_display_driver_init_succeeds_on_hardware(void)
     display.deinit();
 }
 
+// ==========================================
+//             TESTS BUZZER (LEDC)
+// ==========================================
+void test_buzzer_initialization_succeeds_on_hardware(void)
+{
+    Buzzer buzzer(BoardConfig::PIN_BUZZER);
+
+    buzzer.init();
+
+    g_buzzer_was_initialized = true;
+}
+
+void test_buzzer_hardware_frequency_updates(void)
+{
+    Buzzer buzzer(BoardConfig::PIN_BUZZER);
+    buzzer.init();
+
+    g_buzzer_was_initialized = true;
+
+    uint32_t target_freq = 440;
+
+    buzzer.startTone(target_freq);
+    vTaskDelay(pdMS_TO_TICKS(10));
+
+    uint32_t actual_freq = ledc_get_freq(LEDC_LOW_SPEED_MODE, LEDC_TIMER_0);
+
+    TEST_ASSERT_NOT_EQUAL(0, actual_freq);
+
+    buzzer.mute();
+    vTaskDelay(pdMS_TO_TICKS(10));
+
+    uint32_t actual_duty = ledc_get_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
+    TEST_ASSERT_EQUAL_MESSAGE(0, actual_duty, "Mute should set duty cycle to 0");
+}
+
+// ==========================================
+//             MAIN START
+// ==========================================
 extern "C" void app_main()
 {
     vTaskDelay(pdMS_TO_TICKS(2000));
-    
+
     UNITY_BEGIN();
 
+    // Running display tests
     RUN_TEST(test_dma_memory_allocation);
     RUN_TEST(test_spi_bus_low_level_smoke_check);
     RUN_TEST(test_display_driver_init_succeeds_on_hardware);
+
+    // Running buzzer tests
+    RUN_TEST(test_buzzer_initialization_succeeds_on_hardware);
+    RUN_TEST(test_buzzer_hardware_frequency_updates);
 
     UNITY_END();
 }
