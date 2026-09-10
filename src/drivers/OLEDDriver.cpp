@@ -8,8 +8,11 @@ static const char* TAG = "OLEDDriver";
 OLEDDriver::OLEDDriver(const OLEDConfig& config)
 {
     _config = config;
+
     _is_active = false;
     _is_screen_on = true;
+    _needs_render = true;
+
     _bus_handle = nullptr;
     _dev_handle = nullptr;
 
@@ -44,15 +47,19 @@ void OLEDDriver::init()
 
 void OLEDDriver::update()
 {
-    if (!_is_active)
+    if (!_is_active || !_needs_render)
         return;
-    
+
     i2c_master_transmit(_dev_handle, _buffer, sizeof(_buffer), -1);
+
+    _needs_render = false;
 }
 
 void OLEDDriver::clear(bool white)
 {
     memset(&_buffer[1], white ? 0xFF : 0x00, sizeof(_buffer) - 1);
+
+    _needs_render = true;
 }
 
 void OLEDDriver::drawPixel(int x, int y, bool white)
@@ -70,6 +77,8 @@ void OLEDDriver::drawPixel(int x, int y, bool white)
     {
         _buffer[index] &= ~(1 << (y % 8));
     }
+
+    _needs_render = true;
 }
 
 void OLEDDriver::drawLilkaLogo()
@@ -197,7 +206,10 @@ void OLEDDriver::sendInitSequence()
         0xAE, 0x20, 0x00, 0xB0, 0xC8, 0x00, 0x10, 0x40,
         0x81, 0xFF, 0xA1, 0xA6, 0xA8, 0x3F, 0xA4, 0xD3,
         0x00, 0xD5, 0x80, 0xD9, 0x22, 0xDA, 0x12, 0xDB,
-        0x20, 0x8D, 0x14, 0xAF
+        0x20, 0x8D, 0x14, 
+        0x21, 0x00, 0x7F,
+        0x22, 0x00, 0x07,
+        0xAF
     };
 
     for (uint8_t cmd : init_sequence)
