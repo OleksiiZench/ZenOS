@@ -9,6 +9,7 @@ OLEDDriver::OLEDDriver(const OLEDConfig& config)
 {
     _config = config;
     _is_active = false;
+    _is_screen_on = true;
     _bus_handle = nullptr;
     _dev_handle = nullptr;
 
@@ -110,6 +111,23 @@ void OLEDDriver::drawLilkaLogo()
             }
         }
         current_x += CHAR_SPACING;
+    }
+}
+
+void OLEDDriver::toggleDisplay()
+{
+    if (!_is_active)
+        return;
+
+    _is_screen_on = !_is_screen_on;
+
+    if (_is_screen_on)
+    {
+        sendCommand(0xAF); // Command: Display ON
+    }
+    else
+    {
+        sendCommand(0xAE); // Command: Display OFF (Sleep Mode)
     }
 }
 

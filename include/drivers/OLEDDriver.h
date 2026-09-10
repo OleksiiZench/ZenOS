@@ -19,6 +19,8 @@ public:
 
     void drawLilkaLogo();
 
+    void toggleDisplay();
+
 private:
     bool isDeviceAttached(const OLEDConfig& config);
 
@@ -31,6 +33,8 @@ private:
 
     OLEDConfig _config;
     bool _is_active;
+
+    bool _is_screen_on;
 
     i2c_master_bus_handle_t _bus_handle;
     i2c_master_dev_handle_t _dev_handle;

@@ -19,6 +19,9 @@ void SystemBuilder::buildLilka(ZenCore& zenCore)
     Buzzer* buzzerPtr = buzzer.get();
     zenCore.registerModule(std::move(buzzer));
 
+    std::unique_ptr<OLEDDriver> oledDisplay = std::make_unique<OLEDDriver>(BoardConfig::OLED_CONFIG);
+    OLEDDriver* oledPtr = oledDisplay.get();
+
     std::unique_ptr<InputManager> inputManager = std::make_unique<InputManager>();
     if (inputManager)
     {
@@ -33,12 +36,15 @@ void SystemBuilder::buildLilka(ZenCore& zenCore)
         inputManager->bindButton(ButtonID::B, [buzzerPtr]() {
             if (buzzerPtr) buzzerPtr->stop();
         });
+
+        inputManager->bindButton(ButtonID::D, [oledPtr]() {
+            if (oledPtr) oledPtr->toggleDisplay();
+        });
     }
     zenCore.registerModule(std::move(inputManager));
 
     std::unique_ptr<DisplayDriver> display = std::make_unique<DisplayDriver>(BoardConfig::DISPLAY_CONFIG);
     zenCore.registerModule(std::move(display));
 
-    std::unique_ptr<OLEDDriver> oledDisplay = std::make_unique<OLEDDriver>(BoardConfig::OLED_CONFIG);
     zenCore.registerModule(std::move(oledDisplay));
 }
