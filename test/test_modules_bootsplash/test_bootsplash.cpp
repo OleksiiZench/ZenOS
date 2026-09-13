@@ -1,5 +1,3 @@
-#pragma once
-
 #include <unity.h>
 #include "modules/BootSplash.h"
 #include "freertos/task.h"
