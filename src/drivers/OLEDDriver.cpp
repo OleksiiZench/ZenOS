@@ -2,6 +2,7 @@
 
 #include "freertos/FreeRTOS.h"
 #include "esp_log.h"
+#include <cstring>
 
 static const char* TAG = "OLEDDriver";
 
