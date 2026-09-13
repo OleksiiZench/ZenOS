@@ -42,6 +42,16 @@ inline int spi_bus_add_device(int hist_id, const spi_device_interface_config_t* 
     return 0;
 }
 
+inline int spi_bus_remove_device(spi_device_handle_t handle)
+{
+    return 0;
+}
+
+inline int spi_bus_free(int host_id)
+{
+    return 0;
+}
+
 inline uint8_t mock_last_spi_cmd = 0;
 inline size_t mock_spi_data_bytes_sent = 0;
 

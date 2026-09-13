@@ -9,3 +9,8 @@ inline void* heap_caps_malloc(size_t size, uint32_t caps)
 {
     return malloc(size);
 }
+
+inline void heap_caps_free(void* ptr)
+{
+    free(ptr);
+}
