@@ -31,18 +31,34 @@ void InputManager::bindButton(ButtonID id, std::function<void()> action)
     }
 }
 
+void InputManager::bindButtonRelease(ButtonID id, std::function<void()> action)
+{
+    if (id >= ButtonID::Up && id < ButtonID::Max)
+    {
+        _buttons[static_cast<int>(id)].on_release = action;
+    }
+}
+
+void InputManager::bindButtonHold(ButtonID id, std::function<void()> action)
+{
+    if (id >= ButtonID::Up && id < ButtonID::Max)
+    {
+        _buttons[static_cast<int>(id)].on_hold = action;
+    }
+}
+
 void InputManager::initializeArrayButtons()
 {
-    _buttons[static_cast<int>(ButtonID::Up)]     = { ButtonID::Up,       GPIO_NUM_38, "UP",     1, 1, 0, nullptr };
-    _buttons[static_cast<int>(ButtonID::Down)]   = { ButtonID::Down,     GPIO_NUM_41, "DOWN",   1, 1, 0, nullptr };
-    _buttons[static_cast<int>(ButtonID::Left)]   = { ButtonID::Left,     GPIO_NUM_39, "LEFT",   1, 1, 0, nullptr };
-    _buttons[static_cast<int>(ButtonID::Right)]  = { ButtonID::Right,    GPIO_NUM_40, "RIGHT",  1, 1, 0, nullptr };
-    _buttons[static_cast<int>(ButtonID::A)]      = { ButtonID::A,        GPIO_NUM_5,  "A",      1, 1, 0, nullptr };
-    _buttons[static_cast<int>(ButtonID::B)]      = { ButtonID::B,        GPIO_NUM_6,  "B",      1, 1, 0, nullptr };
-    _buttons[static_cast<int>(ButtonID::C)]      = { ButtonID::C,        GPIO_NUM_10, "C",      1, 1, 0, nullptr };
-    _buttons[static_cast<int>(ButtonID::D)]      = { ButtonID::D,        GPIO_NUM_9,  "D",      1, 1, 0, nullptr };
-    _buttons[static_cast<int>(ButtonID::Select)] = { ButtonID::Select,   GPIO_NUM_0,  "SELECT", 1, 1, 0, nullptr };
-    _buttons[static_cast<int>(ButtonID::Start)]  = { ButtonID::Start,    GPIO_NUM_4,  "START",  1, 1, 0, nullptr };
+    _buttons[static_cast<int>(ButtonID::Up)]     = { ButtonID::Up,       GPIO_NUM_38, "UP",     1, 1, 0, 0, nullptr, nullptr, nullptr };
+    _buttons[static_cast<int>(ButtonID::Down)]   = { ButtonID::Down,     GPIO_NUM_41, "DOWN",   1, 1, 0, 0, nullptr, nullptr, nullptr };
+    _buttons[static_cast<int>(ButtonID::Left)]   = { ButtonID::Left,     GPIO_NUM_39, "LEFT",   1, 1, 0, 0, nullptr, nullptr, nullptr };
+    _buttons[static_cast<int>(ButtonID::Right)]  = { ButtonID::Right,    GPIO_NUM_40, "RIGHT",  1, 1, 0, 0, nullptr, nullptr, nullptr };
+    _buttons[static_cast<int>(ButtonID::A)]      = { ButtonID::A,        GPIO_NUM_5,  "A",      1, 1, 0, 0, nullptr, nullptr, nullptr };
+    _buttons[static_cast<int>(ButtonID::B)]      = { ButtonID::B,        GPIO_NUM_6,  "B",      1, 1, 0, 0, nullptr, nullptr, nullptr };
+    _buttons[static_cast<int>(ButtonID::C)]      = { ButtonID::C,        GPIO_NUM_10, "C",      1, 1, 0, 0, nullptr, nullptr, nullptr };
+    _buttons[static_cast<int>(ButtonID::D)]      = { ButtonID::D,        GPIO_NUM_9,  "D",      1, 1, 0, 0, nullptr, nullptr, nullptr };
+    _buttons[static_cast<int>(ButtonID::Select)] = { ButtonID::Select,   GPIO_NUM_0,  "SELECT", 1, 1, 0, 0, nullptr, nullptr, nullptr };
+    _buttons[static_cast<int>(ButtonID::Start)]  = { ButtonID::Start,    GPIO_NUM_4,  "START",  1, 1, 0, 0, nullptr, nullptr, nullptr };
 }
 
 void InputManager::setupButtons()
@@ -82,14 +98,18 @@ void InputManager::updateButtons()
             continue;
         }
 
+        // 1. Handling Click and Release Events (Edge detection)
         if (raw != btn.stable_state && (now - btn.last_change_tick) >= DEBOUNCE_TICKS)
         {
             btn.stable_state = raw;
 
             if (btn.stable_state == 0)
             {
-                ESP_LOGI(TAG, ">>> BUTTON [%s] PRESSED! <<<", _buttons[i].name);
-
+                ESP_LOGI(TAG, ">>> BUTTON [%s] PRESSED! <<<", btn.name);
+                
+                // Reset the hold timer when the button is pressed again
+                btn.last_hold_trigger_tick = now; 
+                
                 if (btn.on_press != nullptr)
                 {
                     btn.on_press();
@@ -97,7 +117,31 @@ void InputManager::updateButtons()
             }
             else
             {
-                ESP_LOGI(TAG, ">>> BUTTON [%s] RELEASED! <<<", _buttons[i].name);
+                ESP_LOGI(TAG, ">>> BUTTON [%s] RELEASED! <<<", btn.name);
+                
+                if (btn.on_release != nullptr)
+                {
+                    btn.on_release();
+                }
+            }
+        }
+        
+        // 2. Handling a Detention Event (Level detection)
+        if (btn.stable_state == 0)
+        {
+            // Check whether the initial hold time has elapsed (HOLD_DELAY)
+            if ((now - btn.last_change_tick) >= HOLD_DELAY_TICKS)
+            {
+                // Check whether the interval between on_hold calls has elapsed
+                if ((now - btn.last_hold_trigger_tick) >= HOLD_REPEAT_TICKS)
+                {
+                    btn.last_hold_trigger_tick = now;
+                    
+                    if (btn.on_hold != nullptr)
+                    {
+                        btn.on_hold();
+                    }
+                }
             }
         }
     }

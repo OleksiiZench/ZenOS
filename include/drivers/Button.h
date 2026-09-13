@@ -35,6 +35,9 @@ struct Button
     int raw_state = 1;
     int stable_state = 1;
     TickType_t last_change_tick = 0;
+    TickType_t last_hold_trigger_tick = 0;
 
     std::function<void()> on_press = nullptr;
+    std::function<void()> on_release = nullptr;
+    std::function<void()> on_hold = nullptr;
 };
