@@ -87,62 +87,70 @@ void InputManager::updateButtons()
 
     for (int i = 0; i < BUTTON_COUNT; i++)
     {
-        Button& btn = _buttons[i];
+        processButton(_buttons[i], now);
+    }
+}
 
-        int raw = gpio_get_level(btn.pin);
+void InputManager::processButton(Button& btn, TickType_t now)
+{
+    int raw = gpio_get_level(btn.pin);
 
-        if (raw != btn.raw_state)
-        {
-            btn.raw_state = raw;
-            btn.last_change_tick = now;
-            continue;
-        }
+    if (raw != btn.raw_state)
+    {
+        btn.raw_state = raw;
+        btn.last_change_tick = now;
+        return;
+    }
 
-        // 1. Handling Click and Release Events (Edge detection)
-        if (raw != btn.stable_state && (now - btn.last_change_tick) >= DEBOUNCE_TICKS)
-        {
-            btn.stable_state = raw;
+    if (raw != btn.stable_state && (now - btn.last_change_tick) >= DEBOUNCE_TICKS)
+    {
+        handleEdgeEvent(btn, raw, now);
+    }
 
-            if (btn.stable_state == 0)
-            {
-                ESP_LOGI(TAG, ">>> BUTTON [%s] PRESSED! <<<", btn.name);
-                
-                // Reset the hold timer when the button is pressed again
-                btn.last_hold_trigger_tick = now; 
-                
-                if (btn.on_press != nullptr)
-                {
-                    btn.on_press();
-                }
-            }
-            else
-            {
-                ESP_LOGI(TAG, ">>> BUTTON [%s] RELEASED! <<<", btn.name);
-                
-                if (btn.on_release != nullptr)
-                {
-                    btn.on_release();
-                }
-            }
-        }
+    if (btn.stable_state == 0)
+    {
+        handleHoldEvent(btn, now);
+    }
+}
+
+void InputManager::handleEdgeEvent(Button& btn, int new_state, TickType_t now)
+{
+    btn.stable_state = new_state;
+
+    if (btn.stable_state == 0)
+    {
+        ESP_LOGI(TAG, ">>> BUTTON [%s] PRESSED! <<<", btn.name);
         
-        // 2. Handling a Detention Event (Level detection)
-        if (btn.stable_state == 0)
+        btn.last_hold_trigger_tick = now; 
+        
+        if (btn.on_press != nullptr)
         {
-            // Check whether the initial hold time has elapsed (HOLD_DELAY)
-            if ((now - btn.last_change_tick) >= HOLD_DELAY_TICKS)
-            {
-                // Check whether the interval between on_hold calls has elapsed
-                if ((now - btn.last_hold_trigger_tick) >= HOLD_REPEAT_TICKS)
-                {
-                    btn.last_hold_trigger_tick = now;
-                    
-                    if (btn.on_hold != nullptr)
-                    {
-                        btn.on_hold();
-                    }
-                }
-            }
+            btn.on_press();
         }
+    }
+    else
+    {
+        ESP_LOGI(TAG, ">>> BUTTON [%s] RELEASED! <<<", btn.name);
+        
+        if (btn.on_release != nullptr)
+        {
+            btn.on_release();
+        }
+    }
+}
+
+void InputManager::handleHoldEvent(Button& btn, TickType_t now)
+{
+    if ((now - btn.last_change_tick) < HOLD_DELAY_TICKS)
+        return;
+
+    if ((now - btn.last_hold_trigger_tick) < HOLD_REPEAT_TICKS)
+        return;
+
+    btn.last_hold_trigger_tick = now;
+    
+    if (btn.on_hold != nullptr)
+    {
+        btn.on_hold();
     }
 }

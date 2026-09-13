@@ -29,4 +29,7 @@ private:
     void setupButtons();
 
     void updateButtons();
+    void processButton(Button& btn, TickType_t now);
+    void handleEdgeEvent(Button& btn, int new_state, TickType_t now);
+    void handleHoldEvent(Button& btn, TickType_t now);
 };
