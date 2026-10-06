@@ -174,6 +174,63 @@ void test_input_manager_pullup_resistors_active(void)
     }
 }
 
+void test_input_manager_hardware_release(void)
+{
+    InputManager input;
+    input.init();
+
+    bool a_button_released = false;
+    input.bindButtonRelease(ButtonID::A, [&a_button_released]() {
+        a_button_released = true;
+    });
+
+    gpio_set_direction(GPIO_NUM_5, GPIO_MODE_INPUT_OUTPUT);
+
+    gpio_set_level(GPIO_NUM_5, 0);
+    for (int i = 0; i < 5; i++)
+    {
+        input.update();
+        vTaskDelay(pdMS_TO_TICKS(10));
+    }
+
+    gpio_set_level(GPIO_NUM_5, 1);
+    for (int i = 0; i < 5; i++)
+    {
+        input.update();
+        vTaskDelay(pdMS_TO_TICKS(10));
+    }
+
+    gpio_set_direction(GPIO_NUM_5, GPIO_MODE_INPUT);
+
+    TEST_ASSERT_TRUE_MESSAGE(a_button_released, "Callback for Button A release should be triggered on hardware");
+}
+
+void test_input_manager_hardware_hold(void)
+{
+    InputManager input;
+    input.init();
+
+    int hold_trigger_count = 0;
+    input.bindButtonHold(ButtonID::A, [&hold_trigger_count]() {
+        hold_trigger_count++;
+    });
+
+    gpio_set_direction(GPIO_NUM_5, GPIO_MODE_OUTPUT);
+
+    gpio_set_level(GPIO_NUM_5, 0);
+
+    for (int i = 0; i < 65; i++)
+    {
+        input.update();
+        vTaskDelay(pdMS_TO_TICKS(10));
+    }
+
+    gpio_set_level(GPIO_NUM_5, 1);
+    gpio_set_direction(GPIO_NUM_5, GPIO_MODE_INPUT);
+
+    TEST_ASSERT_GREATER_THAN_MESSAGE(0, hold_trigger_count, "Callback for Button A hold should be triggered after 500ms");
+}
+
 // ==========================================
 //             MAIN START
 // ==========================================
@@ -195,6 +252,8 @@ extern "C" void app_main()
     // Running input manager tests
     RUN_TEST(test_input_manager_simulated_button_press);
     RUN_TEST(test_input_manager_pullup_resistors_active);
+    RUN_TEST(test_input_manager_hardware_release);
+    RUN_TEST(test_input_manager_hardware_hold);
 
     UNITY_END();
 }
